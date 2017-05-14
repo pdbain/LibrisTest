@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<librismetadata date="2011/06/03" name="testSchema1" version="0.0">
+	<schema>
+		<fielddefs>
+			<enumset id="ENUM_publishers">
+				<enumchoice id="NS_acm" value="ACM" />
+				<enumchoice id="NS_ieee" value="IEEE" />
+				<enumchoice id="NS_ibm" value="IBM" />
+				<enumchoice id="NS_bantam" value="Bantam Books" />
+				<enumchoice id="NS_penguin" value="Penguin Books" />
+				<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
+								<enumchoice id="NS_OTHER" value="other" />
+			</enumset>
+			<fielddef id="ID_auth" title="author"/>
+			<fielddef id="ID_authors" datatype="string" />
+			<fielddef id="ID_title" datatype="string" />
+			<fielddef id="ID_pages" datatype="range" />
+			<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_publishers" />
+			<fielddef id="ID_keywords" datatype="string" />
+			<fielddef id="ID_abstract" datatype="string" />
+			<fielddef id="ID_hardcopy" datatype="boolean" />
+		</fielddefs>
+		<hierarchydefs />
+		<indexdefs>
+		</indexdefs>
+	</schema>
+	<layouts>
+		<layout id="LO_shortFormDisplay" title="Condensed form layout" type="form" height="400"
+			width="700">
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" down="1"/>
+		</layout>
+		<layout id="LO_formDisplay" title="Form layout" type="form" height="400"
+			width="700">
+			<layoutusage usedby="newrecord"/>
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" down="1"/>
+			<layoutfield title="Pages" id="ID_pages" control="rangefield" down="1"/>
+			<layoutfield title="Publisher" id="ID_publisher" control="enumfield" />
+			<layoutfield title="Hardcopy" id="ID_hardcopy" control="checkbox" />
+			<layoutfield title="Keywords" id="ID_keywords" control="textbox" down="1" />
+			<layoutfield title="Abstract" id="ID_abstract" control="textbox" down="1" />
+		</layout>
+				<layout id="LO_browserDisplay" title="Summary" type="list" height="400"
+			width="700">
+			<layoutusage usedby="summarydisplay"/>
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" down="1"/>
+		</layout>
+	</layouts>
+	<indexes>
+	</indexes>
+	<hierarchies />
+</librismetadata>

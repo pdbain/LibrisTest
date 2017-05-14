@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris branch="0" databasename="testDatabase1" date="2011-06-03 00:00:00 UTC"
+	lastchild="0" schemalocation="" schemaname="testDatabase1"
+	schemaversion="testDatabase1">
+	<metadata>
+		<schema>
+			<groupdefs/>
+			<fielddefs>
+				<fielddef id="ID_auth" title="author" />
+			</fielddefs>
+			<indexdefs>
+			</indexdefs>
+		</schema>
+		<layouts/>
+	</metadata>
+	<records>
+		<record id="3">
+			<field id="ID_auth" value="record3" />
+		</record>
+		<record id="1">
+			<field id="ID_auth" value="record1" />
+		</record>
+		<record id="2">
+			<field id="ID_auth" value="record2" />
+		</record>
+		<record id="4">
+			<field id="ID_auth" value="record4" />
+		</record>
+	</records>
+</libris>

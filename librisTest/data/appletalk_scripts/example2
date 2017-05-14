@@ -1,0 +1,55 @@
+(*
+Search "Plasmids" (or other front database in Appleworks) for multiple terms at once
+*)
+tell application "System Events"
+set AllProcesses to name of every process
+end tell
+
+if not (AllProcesses contains "Appleworks") then
+tell application "Finder" to open "Ian's Powerbook:Users:iayork:Lab:Lab Documents:Lab records:Plasmids.cwk"
+else
+tell application "AppleWorks 6"
+activate
+set the front document to document "Plasmids.cwk"
+end tell
+end if
+
+tell me to activate
+set AllSearch to {}
+set TheResult to display dialog "Enter search terms, separated by commas: " default answer ""
+set SearchTerms to text returned of TheResult
+set TID to AppleScript's text item delimiters
+set AppleScript's text item delimiters to ","
+repeat with i from 1 to number of text items in SearchTerms
+set AllSearch to AllSearch & text item i of SearchTerms
+end repeat
+set AppleScript's text item delimiters to TID
+
+set string1 to "get every record of front document whose "
+set string1A to "get every record of front document whose "
+repeat with i from 1 to ((number of items in AllSearch) - 1)
+set string2 to "(value of field " & "1" & ") contains \"" & item i of AllSearch & "\" and "
+set string1 to string1 & string2
+set string2A to "(value of field " & "4" & ") contains \"" & item i of AllSearch & "\" and "
+set string1A to string1A & string2A
+
+end repeat
+set string3 to "(value of field " & "1" & ") contains \"" & item -1 of AllSearch & "\""
+set string3A to "(value of field " & "4" & ") contains \"" & item -1 of AllSearch & "\""
+
+ set IfString to string1 & string3
+set IfStringA to string1A & string3A
+
+tell application "AppleWorks 6"
+set ThePlasmids to run script IfString
+set MorePlasmids to run script IfStringA
+repeat with APlasmid in MorePlasmids
+if not (ThePlasmids contains APlasmid) then copy APlasmid to end of ThePlasmids
+end repeat
+if ThePlasmids is {} then display dialog "No matches found"
+
+repeat with i from 1 to number of items in ThePlasmids
+set APlas to item i of ThePlasmids
+display dialog ("Record " & i & " of " & number of items in ThePlasmids & ":" & return & return & "Plasmid: " & (|Plasmid| of APlas) as string) & return & "Description: " & ((|Description:| of APlas) as string)
+end repeat
+end tell

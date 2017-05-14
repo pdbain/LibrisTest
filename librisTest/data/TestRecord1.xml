@@ -1,0 +1,12 @@
+<record id="1" name="Record1">
+	<field id="auth" value="Rudyard Kipling"/>
+	<field id="titl" value="Kim"/>
+	<field id="pubn" value="publication" />
+	<field id="pubr" value="publisher"/>
+	<field id="volu" value="100" />
+	<field id="numb" value="9" />
+	<field id="mont" value="June" />
+	<field id="year" value="1066" />
+	<field id="abst" value="abstract" />
+	<field id="keyw" value="India British Empire Russia espionage" />
+</record>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE libris SYSTEM "file:///Users/pdbain/Documents/workspace/libris/doc/libris.dtd">
+<libris name="test" date="2005-01-08" moddate="2005-01-08"
+	version="0.0">
+	<schema>
+		<fielddefs>
+		<enumset id="e_onechoice">
+				<enumchoice id="c_choice0" value="onlychoice"/>
+		</enumset>
+		<enumset id="e_twochoices">
+				<enumchoice id="c_choice1" value="choice1"/>
+				<enumchoice id="c_choice2" value="choice2"/>
+		</enumset>
+		<enumset id="e_threechoices">
+				<enumchoice id="c_choice3" value="choice3"/>
+				<enumchoice id="c_choice4" value="choice4"/>
+				<enumchoice id="c_choice5" value="choice5"/>
+		</enumset>
+			<fielddef id="IntField1" name="if1" datatype="INTEGER"
+				summary="true" indexable="true" printable="true" visible="true"
+				editable="true" />
+			<fielddef id="StringField1" name="sf1" datatype="string"
+				summary="true" indexable="true" printable="true" visible="true"
+				editable="true" />
+			<fielddef id="sf2" name="StringField2" datatype="string"
+				summary="true" indexable="true" printable="true" visible="true"
+				editable="true" />
+			<fielddef name="IntField2" id="if2" datatype="INTEGER"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" />
+			<fielddef id="isf1" name="IntsField1" datatype="INTEGERS"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" />
+			<fielddef id="BoolField1" name="bf1" datatype="boolean"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" />
+			<fielddef id="ixf1" name="IndexField1" datatype="INDEXENTRY"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" />
+			<fielddef name="EnumField1" id="ef1" datatype="ENUM"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true"  enumset="e_onechoice" />
+			<fielddef name="EnumField2" id="ef2" datatype="ENUM"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" enumset="e_twochoices" />
+			<fielddef name="EnumField3" id="ef3" datatype="ENUM"
+				summary="true" indexable="false" printable="true" visible="true"
+				editable="true" enumset="e_threechoices" restricted="true" />
+		</fielddefs>
+		<indexdefs>
+			<indexdef indexname="ID" indexmethod="manual" />
+		</indexdefs>
+	</schema>
+	<indexes>
+	</indexes>
+	<records>
+		<record id="r1">
+			<field id="StringField1" value="abcdef" />
+			<field id="StringField2"> abc defg hijkl mnopqr</field>
+			<field id="IntField1" value="12" />
+			<field id="IntField2" value="98" />
+		</record>
+		<record id="r2">
+			<field id="StringField1" value="qwerty" />
+			<field id="StringField2"> a sd fgh jklz xcvbn</field>
+			<field id="IntField1" value="34" />
+			<field id="IntField2" value="56" />
+		</record>
+		<record id="r3">
+			<field id="StringField1" value="qwerty" />
+			<field id="IntField1" value="34" />
+		</record>
+		<record id="r4">
+			<field id="StringField2">Qazwsx Edcrfv Tgb Yhnujm</field>
+			<field id="IntField1" value="3" />
+			<field id="IntField2" value="1234567890" />
+		</record>
+		<record id="r5">
+			<field id="StringField1" value="qazwsxedcrfv tgbyhnujmikolp" />
+			<field id="StringField2">Qazwsx Edcrfv Tgb Yhnujm</field>
+			<field id="IntField1" value="3" />
+			<field id="IntField2" value="1234567890" />
+		</record>
+		<record id="r6">
+			<field id="IntField1" value="3" />
+			<field id="StringField2"> The quick brown fox jumps over the lazy dog.</field>
+			<field id="IntField2" value="1234567890" />
+		</record>
+		<record id="r7">
+			<field id="IntField1" value="3" />
+			<field id="StringField2"> The quick brown fox jumps over the lazy dog.</field>
+			<field id="IntField2" value="1234567890" />
+		</record>
+		<record id="r8">
+			<field id="BoolField1" value="true" />
+			<field id="ef1" value="onlychoice"/>
+		</record>
+		<record id="r9">
+			<field id="BoolField1" value="false" />
+			<field id="ef2" value="choice2"/>
+		</record>
+	</records>
+</libris>

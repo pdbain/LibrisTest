@@ -1,0 +1,10 @@
+<layouts>
+	<layout id="layout2" title="Layout 2" type="form" height="400" width="700">
+		<layoutfield title="boolean checkbox, checked" id="booltrue" control="checkbox"/>
+		<layoutfield title="boolean checkbox, unchecked" id="boolfalse" control="checkbox"/>
+		<layoutfield title="Text field" id="textfield" control="textbox"/>
+		<layoutfield title="Range field" id="rangefield1" control="rangefield"/>
+		<layoutfield title="Range field, no range" id="rangefield2" control="rangefield"/>
+		<layoutfield title="Range field, 2 ranges" id="rangefield3" control="rangefield"/>
+	</layout>
+</layouts>

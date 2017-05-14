@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+	<groupdefs />
+	<fielddefs>
+		<enumset id="ENUM_doctype">
+			<enumchoice id="DT_journal-article" value="Journal article" />
+			<enumchoice id="DT_proceedings-article" value="Proceedings article" />
+			<enumchoice id="DT_monograph" value="Monograph" />
+			<enumchoice id="DT_book" value="Book" />
+			<enumchoice id="DT_web" value="Web page" />
+			<enumchoice id="DT_pdf" value="PDF file" />
+			<enumchoice id="DT_OTHER" value="other" />
+		</enumset>
+		<enumset id="ENUM_publishers">
+			<enumchoice id="NS_acm" value="ACM" />
+			<enumchoice id="NS_ieee" value="IEEE" />
+			<enumchoice id="NS_ibm" value="IBM" />
+			<enumchoice id="NS_bantam" value="Bantam Books" />
+			<enumchoice id="NS_penguin" value="Penguin Books" />
+			<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
+			<enumchoice id="NS_OTHER" value="other" />
+		</enumset>
+		<fielddef datatype="enum" enumset="ENUM_doctype" id="ID_doctype"
+			title="Document type" required="true" default="DT_journal-article" />
+		<fielddef id="ID_auth" title="author" default="Auth1" />
+		<fielddef id="ID_authors" datatype="string" />
+		<fielddef id="ID_title" datatype="string" />
+		<fielddef id="ID_pages" datatype="valuepair" />
+		<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_publishers"
+			default="NS_ibm" />
+		<fielddef id="ID_keywords" datatype="string" />
+		<fielddef id="ID_abstract" datatype="string" />
+		<fielddef id="ID_hardcopy" datatype="boolean" default="true" />
+	</fielddefs>
+	<indexdefs>
+	</indexdefs>
+</schema>

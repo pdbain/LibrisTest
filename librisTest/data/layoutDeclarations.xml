@@ -1,0 +1,27 @@
+<layouts>
+	<layout id="layout1" title="LayoutDeclarations layout1" type="form">
+		<layoutfield title="Author" id="auth"></layoutfield>
+		<layoutfield id="titl" />
+		<layoutfield id="pubn" />
+		<layoutfield id="pubr" />
+		<layoutfield id="volu" />
+		<layoutfield id="numb" />
+		<layoutfield id="mont" />
+		<layoutfield id="year" />
+		<layoutfield id="abst" />
+		<layoutfield id="keyw" />
+	</layout>
+	<layout id="layout1a" title="LayoutDeclarations layout1a" type="form" height="400" width="700">
+		<layoutfield title="Author" id="auth"  width="25" height="1"></layoutfield>
+		<layoutfield id="titl" hspan="2"/>
+		<layoutfield id="pubn"  return="true"/>
+		<layoutfield id="pubr"/>
+		<layoutfield id="volu" />
+		<layoutfield id="numb"  return="true"/>
+		<layoutfield id="mont"/>
+		<layoutfield id="year" />
+		<layoutfield id="conf" control="checkbox"/>
+		<layoutfield id="abst" vspan="2" height="3" return="true"/>
+		<layoutfield id="keyw" />
+	</layout>
+</layouts>

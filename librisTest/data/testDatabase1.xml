@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris date="2011-06-03 00:00:00 UTC" schemaname="testDatabase1" databasename="testDatabase1" schemaversion="0.0">
+<metadata>
+	<schema>
+		<groupdefs />
+		<fielddefs>
+			<enumset id="ENUM_publishers">
+				<enumchoice id="NS_acm" value="ACM" />
+				<enumchoice id="NS_ieee" value="IEEE" />
+				<enumchoice id="NS_ibm" value="IBM" />
+				<enumchoice id="NS_bantam" value="Bantam Books" />
+				<enumchoice id="NS_penguin" value="Penguin Books" />
+				<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
+				<enumchoice id="NS_OTHER" value="other" />
+			</enumset>
+			<fielddef id="ID_auth" title="author"/>
+			<fielddef id="ID_authors" datatype="string" />
+			<fielddef id="ID_title" datatype="string" />
+			<fielddef id="ID_pages" datatype="valuepair" />
+			<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_publishers" valueseparator=":" />
+			<fielddef id="ID_keywords" datatype="string" />
+			<fielddef id="ID_abstract" datatype="string" />
+			<fielddef id="ID_hardcopy" datatype="boolean" />
+		</fielddefs>
+		<indexdefs>
+		</indexdefs>
+	</schema>
+	<layouts>
+		<layout id="LO_shortFormDisplay" title="Condensed form layout" type="form" height="400"
+			width="700">
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" return="true"/>
+		</layout>
+		<layout id="LO_formDisplay" title="Form layout" type="form" height="400"
+			width="700">
+			<layoutusage usedby="newrecord"/>
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" return="true"/>
+			<layoutfield title="Pages" id="ID_pages" control="rangefield" return="true"/>
+			<layoutfield title="Publisher" id="ID_publisher" control="enumfield" />
+			<layoutfield title="Hardcopy" id="ID_hardcopy" control="checkbox" />
+			<layoutfield title="Keywords" id="ID_keywords" control="textbox" return="true" />
+			<layoutfield title="Abstract" id="ID_abstract" control="textbox" return="true" />
+		</layout>
+				<layout id="LO_browserDisplay" title="Summary" type="list" height="400"
+			width="700">
+			<layoutusage usedby="summarydisplay"/>
+			<layoutfield title="Author" id="ID_auth" control="textfield" />
+			<layoutfield title="Title" id="ID_title" control="textfield" return="true"/>
+		</layout>
+	</layouts>
+	</metadata>
+	<records lastid="4">
+			<record id="1">
+			<field id="ID_auth" value="John le Carre" />
+			<field id="ID_title" value="Smiley's People" />
+			<field id="ID_pages" value="388" />
+			<field id="ID_publisher" value="NS_bantam" />
+			<field id="ID_keywords" value="circus Smiley Haydon" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="2">
+			<field id="ID_auth" value="Homer" />
+			<field id="ID_title" value="The Odyssey" />
+			<field id="ID_pages" value="365" />
+			<field id="ID_publisher" value="NS_penguin" />
+			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="3">
+			<field id="ID_auth" value="Louise Creighton" />
+			<field id="ID_title" value="A First History of France" />
+			<field id="ID_pages" value="301" />
+			<field id="ID_publisher" value="" extravalue="someone else" />
+			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="4">
+			<field id="ID_auth" value="Tim Lindholm" />
+			<field id="ID_auth" value="Frank Yellin" />
+			<field id="ID_title" value="The Java Virtual Machine Specification, Second Edition" />
+			<field id="ID_pages" value="473" />
+			<field id="ID_publisher" value="" extravalue="NS_addison_wesley" />
+			<field id="ID_keywords" value="Java VM bytecode classloading" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+	</records>
+</libris>

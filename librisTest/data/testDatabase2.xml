@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris date="2011-06-03" name="testDatabase2" version="0.0"
+	metadatafile="testDatabase1.xml">
+	<records>
+		<record id="R1">
+			<field id="ID_auth" value="John le Carre" />
+			<field id="ID_title" value="Smiley's People" />
+			<field id="ID_pages" value="388" />
+			<field id="ID_publisher" value="NS_bantam" />
+			<field id="ID_keywords" value="circus Smiley Haydon" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="R2">
+			<field id="ID_auth" value="Homer" />
+			<field id="ID_title" value="The Odyssey" />
+			<field id="ID_pages" value="365" />
+			<field id="ID_publisher" value="NS_penguin" />
+			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="R3">
+			<field id="ID_auth" value="Louise Creighton" />
+			<field id="ID_title" value="A First History of France" />
+			<field id="ID_pages" value="301" />
+			<field id="ID_publisher" value="" extravalue="someone else" />
+			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+	</records>
+</libris>

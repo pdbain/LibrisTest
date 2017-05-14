@@ -1,0 +1,8 @@
+<record id="1">
+	<field id="booltrue" value="false"/>
+	<field id="boolfalse" value="true"/>
+	<field id="textfield" value="sample text" />
+	<field id="rangefield1" value="1" extravalue="2" />
+	<field id="rangefield2" value="3" />
+	<field id="rangefield3" value="4-5, 6-7, 8, 9-10" />
+</record>

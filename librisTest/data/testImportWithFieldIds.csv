@@ -1,0 +1,4 @@
+ID_auth,ID_authors,ID_title,ID_pages,ID_publisher,ID_keywords,ID_abstract,ID_hardcopy
+auth1,auth1a,tile number 1,10-20,NS_bantam, keyword 1 keyword2,this is abstract 1,true
+auth2,auth2a,tile number 2,20-20,NS_penguin, keyword 2 keyword2,this is abstract 2,false
+auth3,auth3a,tile number 3,30-20,NS_addison_wesley, keyword 3 keyword2,this is abstract 3,true

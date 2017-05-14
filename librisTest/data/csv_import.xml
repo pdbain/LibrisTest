@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<librisimport>
+	<field id="ID_auth">
+		<column columnNum="1"/>
+	</field>
+	<field id="ID_authors">
+		<column columnNum="2"/>
+	</field>
+	<field id="ID_title">
+		<column columnNum="3"/>
+	</field>
+	<field id="ID_pages">
+		<column columnNum="4"/>
+	</field>
+	<field id="ID_publisher">
+		<column columnNum="5">
+			<translate from="IEEE" to="NS_ieee"/>
+			<translate from="ACM" to="NS_acm"/>
+			<translate from="ION" to="NS_ion"/>
+			<translate from="IBM" to="NS_ibm"/>
+			<translate from="(.*)" to=":$1" />
+		</column>
+	</field>
+	<field id="ID_keywords">
+		<column columnNum="6"/>
+	</field>
+	<field id="ID_abstract" >
+		<column columnNum="7"/>
+	</field>
+	<field id="ID_hardcopy" >
+		<default data="true"/>
+	</field>
+</librisimport>

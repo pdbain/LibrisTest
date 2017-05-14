@@ -1,0 +1,20 @@
+<schema>
+	<groupdefs>
+		<groupdef id="GRP_one" title="First group" structure="hierarchical" />
+		<groupdef id="GRP_two" title="Second group" structure="flat" />
+	</groupdefs>
+	<fielddefs>
+		<enumset id="ENUM_numberStrings">
+			<enumchoice id="NS_one" value="one" />
+			<enumchoice id="NS_two" value="two" />
+			<enumchoice id="NS_three" value="three" />
+		</enumset>
+		<fielddef id="auth" nameid="author">
+		</fielddef>
+		<fielddef id="booltrue" datatype="boolean" />
+		<fielddef id="textfield" datatype="string" />
+		<fielddef id="rangefield1" datatype="valuepair" />
+		<fielddef id="enumfield1" datatype="enum" enumset="ENUM_numberStrings"/>
+	</fielddefs>
+	<indexdefs />
+</schema>

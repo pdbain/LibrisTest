@@ -1,0 +1,17 @@
+<schema>
+	<groupdefs/>
+	<fielddefs>
+		<fielddef badid="auth" nameid="author">
+		</fielddef>
+			<fielddef id="titl" nameid="title" />
+			<fielddef id="pubn" nameid="publication" />
+			<fielddef id="pubr" nameid="publisher" />
+			<fielddef id="volu" nameid="volume" datatype="INTEGER" />
+			<fielddef id="numb" nameid="number" datatype="INTEGER" />
+			<fielddef id="mont" nameid="month" datatype="string" />
+			<fielddef id="year" nameid="year" datatype="INTEGER" />
+			<fielddef id="abst" nameid="abstract" />
+			<fielddef id="keyw" nameid="keywords" />
+	</fielddefs>
+	<indexdefs/>
+</schema>

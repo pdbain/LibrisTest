@@ -1,0 +1,8 @@
+<record id="1">
+	<field id="booltrue" value="false"/>
+	<field id="auth" value="Some Guy"/>
+	<field id="textfield" value="Some text" />
+	<field id="rangefield1" value="1" extravalue="2" />
+	<field id="enumfield1" value="NS_one" />
+	<field id="enumfield1" extravalue="Some out of range enumfield value" />
+</record>

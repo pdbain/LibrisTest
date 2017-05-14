@@ -1,0 +1,127 @@
+<libris branch="0" databasename="testDatabase1" date="2011-06-03 00:00:00 UTC"
+	lastchild="0" schemalocation="" schemaname="testDatabase1"
+	schemaversion="testDatabase1">
+	<metadata>
+		<schema>
+			<groupdefs>
+				<groupdef id="GRP_one" structure="hierarchical" title="First group" />
+				<groupdef id="GRP_two" structure="flat" title="Second group" />
+			</groupdefs>
+			<fielddefs>
+				<enumset id="ENUM_doctype">
+					<enumchoice id="DT_journal-article" value="Journal article" />
+					<enumchoice id="DT_proceedings-article" value="Proceedings article" />
+					<enumchoice id="DT_monograph" value="Monograph" />
+					<enumchoice id="DT_book" value="Book" />
+					<enumchoice id="DT_web" value="Web page" />
+					<enumchoice id="DT_pdf" value="PDF file" />
+					<enumchoice id="DT_OTHER" value="other" />
+				</enumset>
+				<enumset id="ENUM_publishers">
+					<enumchoice id="NS_acm" value="ACM" />
+					<enumchoice id="NS_ieee" value="IEEE" />
+					<enumchoice id="NS_ibm" value="IBM" />
+					<enumchoice id="NS_bantam" value="Bantam Books" />
+					<enumchoice id="NS_pub1" value="Publisher1" />
+					<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
+					<enumchoice id="NS_OTHER" value="other" />
+				</enumset>
+				<fielddef datatype="enum" default="DT_journal-article"
+					enumset="ENUM_doctype" id="ID_doctype" title="Document type" />
+				<fielddef id="ID_auth" title="author" />
+				<fielddef datatype="string" id="ID_title" />
+				<fielddef datatype="valuepair" id="ID_pages" />
+				<fielddef datatype="enum" default="NS_ibm" enumset="ENUM_publishers"
+					id="ID_publisher" inherit="GRP_one" />
+				<fielddef datatype="string" id="ID_volume" inherit="GRP_one" />
+				<fielddef datatype="string" id="ID_issue" inherit="GRP_one" />
+				<fielddef datatype="string" id="ID_keywords" />
+				<fielddef datatype="string" id="ID_abstract" />
+				<fielddef datatype="boolean" default="true" id="ID_hardcopy"
+					inherit="GRP_two" />
+			</fielddefs>
+			<indexdefs>
+			</indexdefs>
+		</schema>
+		<layouts>
+			<layout height="400" id="LO_shortFormDisplay" title="Condensed form layout"
+				type="form" width="700">
+				<layoutfield control="textfield" hspan="1" id="ID_auth"
+					title="Author" vspan="1" />
+				<layoutfield control="textfield" hspan="1" id="ID_title"
+					return="true" title="Title" vspan="1" />
+			</layout>
+			<layout height="400" id="LO_formDisplay" title="Form layout"
+				type="form" width="700">
+				<layoutusage usedby="newrecord" />
+				<layoutfield control="textfield" hspan="1" id="ID_auth"
+					title="Author" vspan="1" />
+				<layoutfield control="textfield" hspan="1" id="ID_title"
+					return="true" title="Title" vspan="1" />
+				<layoutfield control="rangefield" height="1" hspan="1"
+					id="ID_pages" return="true" title="Pages" vspan="1" width="3" />
+				<layoutfield control="enumfield" hspan="1" id="ID_publisher"
+					title="Publisher" vspan="1" />
+				<layoutfield control="textfield" height="1" hspan="1"
+					id="ID_volume" return="true" title="Volume" vspan="1" width="25" />
+				<layoutfield control="checkbox" hspan="1" id="ID_hardcopy"
+					title="Hardcopy" vspan="1" />
+				<layoutfield control="textbox" height="1" hspan="1"
+					id="ID_keywords" return="true" title="Keywords" vspan="1" width="25" />
+				<layoutfield control="textbox" height="1" hspan="1"
+					id="ID_abstract" return="true" title="Abstract" vspan="1" width="25" />
+				<layoutfield control="enumfield" hspan="1" id="ID_doctype"
+					title="Document type" vspan="1" />
+			</layout>
+			<layout height="400" id="LO_browserDisplay" title="Summary"
+				type="list" width="700">
+				<layoutusage usedby="summarydisplay" />
+				<layoutfield control="textfield" hspan="1" id="ID_auth"
+					title="Author" vspan="1" />
+				<layoutfield control="textfield" hspan="1" id="ID_title"
+					return="true" title="Title" vspan="1" />
+			</layout>
+		</layouts>
+	</metadata>
+	<records lastid="7">
+		<record id="1" name="g_pub1">
+			<member group="GRP_one" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_publisher" value="NS_pub1" />
+		</record>
+		<record id="2" name="g_pub1_v1">
+			<member group="GRP_one" parent="1" />
+			<field id="ID_volume" value="Volume 1" />
+		</record>
+		<record id="3" name="g_fred_foobar">
+			<member group="GRP_one" parent="2" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_auth" value="Fred" />
+			<field id="ID_title" value="Title1" />
+			<field extravalue="2" id="ID_pages" value="1" />
+			<field id="ID_keywords" value="lorem ipsum" />
+			<field id="ID_abstract" value="dolor" />
+			<field id="ID_hardcopy" value="false" />
+		</record>
+		<record id="4" name="a_record">
+			<member group="GRP_one" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_publisher" value="NS_pub1" />
+		</record>
+		<record id="5" name="b_record">
+			<member group="GRP_one" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_publisher" value="NS_pub1" />
+		</record>
+		<record id="6" name="ab_record">
+			<member group="GRP_one" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_publisher" value="NS_pub1" />
+		</record>
+		<record id="7" name="bb_record">
+			<member group="GRP_one" />
+			<field id="ID_doctype" value="DT_journal-article" />
+			<field id="ID_publisher" value="NS_pub1" />
+		</record>
+	</records>
+</libris>

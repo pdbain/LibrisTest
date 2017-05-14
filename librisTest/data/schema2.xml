@@ -1,0 +1,19 @@
+<schema>
+	<groupdefs>
+	<groupdef id="group1" />
+	<groupdef id="group2" />
+	</groupdefs>
+	
+	<fielddefs>
+		<fielddef title="Author" id="auth" nameid="author">
+		</fielddef>
+		<fielddef title="Boolean true" id="booltrue" datatype="boolean" />
+		<fielddef id="boolfalse" datatype="boolean" />
+		<fielddef id="textfield" datatype="string" />
+		<fielddef id="rangefield1" datatype="valuepair" />
+		<fielddef id="rangefield2" datatype="valuepair" />
+		<fielddef id="rangefield3" datatype="valuepair" />
+		<fielddef id="intfield1" datatype="integer" />
+	</fielddefs>
+	<indexdefs />
+</schema>

@@ -1,0 +1,109 @@
+<libris branch="0" databasename="testDatabase1" date="2011-06-03 00:00:00 UTC" lastchild="0" schemalocation="" schemaname="testDatabase1" schemaversion="testDatabase1">
+	<metadata>
+		<schema>
+			<groupdefs>
+				<groupdef id="GRP_pubinfo" structure="flat" title="Publication information"/>
+				<groupdef id="GRP_two" structure="flat" title="Second group"/>
+				<groupdef id="GRP_one" structure="hierarchical" title="Third group"/>
+			</groupdefs>
+			<fielddefs>
+				<enumset id="ENUM_doctype">
+					<enumchoice id="DT_journal-article" value="Journal article"/>
+					<enumchoice id="DT_proceedings-article" value="Proceedings article"/>
+					<enumchoice id="DT_monograph" value="Monograph"/>
+					<enumchoice id="DT_book" value="Book"/>
+					<enumchoice id="DT_web" value="Web page"/>
+					<enumchoice id="DT_pdf" value="PDF file"/>
+					<enumchoice id="DT_OTHER" value="other"/>
+				</enumset>
+				<enumset id="ENUM_publishers">
+					<enumchoice id="NS_acm" value="ACM"/>
+					<enumchoice id="NS_ieee" value="IEEE"/>
+					<enumchoice id="NS_ibm" value="IBM"/>
+					<enumchoice id="NS_bantam" value="Bantam Books"/>
+					<enumchoice id="NS_penguin" value="Penguin Books"/>
+					<enumchoice id="NS_addison_wesley" value="Addison-Wesley"/>
+					<enumchoice id="NS_OTHER" value="other"/>
+				</enumset>
+				<enumset id="ENUM_journal">
+					<enumchoice id="JR_ieee_comm" value="Communications Magazine"/>
+					<enumchoice id="JR_ieee_computer" value="IEEE Computer Magazine"/>
+					<enumchoice id="JR_annals_hc" value="Annals of the History of Computing"/>
+					<enumchoice id="JR_gpsworld" value="GPS World"/>
+					<enumchoice id="JR_navigation" value="Navigation"/>
+					<enumchoice id="JR_ieee_micro" value="IEEE Micro"/>
+					<enumchoice id="JR_c_acm" value="Communications of the ACM"/>
+					<enumchoice id="JR_ibm_jrd" value="IBM Journal of Research and Development"/>
+					<enumchoice id="JR_acm_can" value="Computer Architecture News"/>
+					<enumchoice id="JR_insidegnss" value="Inside GNSS"/>
+					<enumchoice id="JR_ibm_sysj" value="IBM System Journal"/>
+					<enumchoice id="JR_acm_sigplan" value="SIGPLAN Notices"/>
+					<enumchoice id="JR_ieee_proc" value="Proceedings of the IEEE"/>
+					<enumchoice id="JR_OTHER" value="other"/>
+				</enumset>
+				<fielddef datatype="enum" default="DT_journal-article" enumset="ENUM_doctype" id="ID_doctype" title="Document type"/>
+				<fielddef id="ID_auth" title="author"/>
+				<fielddef datatype="string" id="ID_title"/>
+				<fielddef datatype="enum" enumset="ENUM_journal" id="ID_journal" valueseparator=":" inherit="GRP_pubinfo" />
+				<fielddef datatype="valuepair" id="ID_pages"/>
+				<fielddef datatype="enum" default="NS_ibm" enumset="ENUM_publishers" id="ID_publisher" inherit="GRP_pubinfo" />
+				<fielddef datatype="string" id="ID_volume" inherit="GRP_pubinfo"/>
+				<fielddef datatype="string" id="ID_issue" inherit="GRP_pubinfo"/>
+				<fielddef datatype="string" id="ID_keywords"/>
+				<fielddef datatype="string" id="ID_abstract"/>
+				<fielddef datatype="boolean" default="true" id="ID_hardcopy" inherit="GRP_two"/>
+			</fielddefs>
+			<indexdefs>
+			</indexdefs>
+		</schema>
+		<layouts>
+			<layout height="400" id="LO_shortFormDisplay" title="Condensed form layout" type="form" width="700">
+				<layoutfield control="textfield" hspan="1" id="ID_auth" title="Author" vspan="1"/>
+				<layoutfield control="textfield" hspan="1" id="ID_title" return="true" title="Title" vspan="1"/>
+			</layout>
+			<layout height="400" id="LO_formDisplay" title="Form layout" type="form" width="700">
+				<layoutusage usedby="newrecord"/>
+				<layoutfield control="textfield" hspan="1" id="ID_auth" title="Author" vspan="1"/>
+				<layoutfield control="textfield" hspan="1" id="ID_title" return="true" title="Title" vspan="1"/>
+				<layoutfield control="rangefield" height="1" hspan="1" id="ID_pages" return="true" title="Pages" vspan="1" width="3"/>
+				<layoutfield control="enumfield" hspan="1" id="ID_journal" title="Journal" vspan="1"/>
+				<layoutfield control="enumfield" hspan="1" id="ID_publisher" return="true" title="Publisher" vspan="1"/>
+				<layoutfield control="textfield" hspan="1" id="ID_volume" title="Volume" vspan="1"/>
+				<layoutfield control="textfield" hspan="1" id="ID_issue" return="true" title="Issue" vspan="1"/>
+				<layoutfield control="checkbox" hspan="1" id="ID_hardcopy" title="Hardcopy" vspan="1"/>
+				<layoutfield control="textbox" height="1" hspan="1" id="ID_keywords" return="true" title="Keywords" vspan="1" width="25"/>
+				<layoutfield control="textbox" height="1" hspan="1" id="ID_abstract" return="true" title="Abstract" vspan="1" width="25"/>
+				<layoutfield control="enumfield" hspan="1" id="ID_doctype" title="Document type" vspan="1"/>
+			</layout>
+			<layout height="400" id="LO_browserDisplay" title="Summary" type="list" width="700">
+				<layoutusage usedby="summarydisplay"/>
+				<layoutfield control="textfield" hspan="1" id="ID_auth" title="Author" vspan="1"/>
+				<layoutfield control="textfield" hspan="1" id="ID_title" return="true" title="Title" vspan="1"/>
+			</layout>
+		</layouts>
+	</metadata>
+	<records lastid="4">
+		<record id="1" name="IEEE">
+			<field id="ID_publisher" value="NS_ieee"/>
+		</record>
+		<record id="2" name="IEEE_micro">
+			<member group="GRP_pubinfo" parent="1" />
+			<field id="ID_journal" value="JR_ieee_micro"/>
+		</record>
+		<record id="3" name="IEEE_computer">
+			<member group="GRP_pubinfo" parent="1" />
+			<field id="ID_journal" value="JR_ieee_computer"/>
+		</record>
+		<record id="4" name="IEEE_computer_jan">
+			<member group="GRP_pubinfo" parent="3" />
+			<field id="ID_volume" value="1"/>
+		</record>
+		<record id="5" name="ACM">
+			<field id="ID_publisher" value="NS_acm"/>
+		</record>
+		<record id="6" name="ACM_CACM">
+			<member group="GRP_pubinfo" parent="5" />
+			<field id="ID_journal" value="JR_c_acm"/>
+		</record>
+	</records>
+</libris>

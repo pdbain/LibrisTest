@@ -1,0 +1,87 @@
+(*
+Assuming that your database contains a field named "RandomNum",
+open the base then run this script.
+It will fill the fields "Num" with random numbers.
+Then it will try to apply a sort named [theSort] sorting upon the field [theField]
+
+Yvan KOENIG (Vallauris FRANCE)
+25 mars 2009
+*)
+--=====
+
+(* Define these properties according to your database *)
+property theField : "Num"
+property theSort : "Randomized"
+
+--=====
+(* defining lists as property dramatically fasten the script *)
+property liste1 : {}
+property liste2 : {}
+property liste3 : {}
+--=====
+
+on run
+   my nettoie()
+   
+   tell application "AppleWorks 6"
+       activate
+       set available to document kind of documents
+       if available is {} then error "No open document !"
+       set dbAvailable to false
+       repeat with i from 1 to count of available
+           if item i of available is database document then
+               set dbAvailable to true
+               exit repeat
+           end if
+       end repeat
+       if not dbAvailable then error "No open database !"
+       set dbName to name of document i
+       tell document dbName
+           select menu item 1 of menu 5 (* Layout > Browse *)
+           select menu item 1 of menu 6 (* Organize > Show All Records *)
+           
+           set nbrec to count of records
+           my buildRandoms(nbrec)
+           repeat with i from 1 to nbrec
+               set value of field theField of record i to item i of my liste2
+           end repeat
+           
+           try
+               apply db sort theSort
+           end try
+       end tell -- document 1
+   end tell -- AppleWorks
+   my nettoie() (* I don't want to save the lists in the script *)
+end run
+
+--=====
+
+on buildRandoms(nbnb)
+   repeat with i from 1 to nbnb
+       copy i to end of my liste1
+   end repeat
+   
+   repeat nbnb times
+       set x to random number from 1 to count of my liste1
+       copy item x of my liste1 to end of my liste2
+       if x > 1 then
+           set my liste3 to items 1 thru (x - 1) of my liste1
+       else
+           set my liste3 to {}
+       end if
+       repeat with i from x + 1 to count of my liste1
+           copy item i of my liste1 to end of my liste3
+       end repeat
+       copy my liste3 to my liste1
+   end repeat
+end buildRandoms
+
+--=====
+
+on nettoie()
+   set my liste1 to {}
+   set my liste2 to {}
+   set my liste3 to {}
+end nettoie
+
+--=====

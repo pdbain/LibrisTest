@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris date="2011-06-03 00:00:00 UTC" schemaname="testDatabase1" databasename="testDatabase1" schemaversion="0.0">
+<metadata>
+	<schema>
+		<groupdefs />
+		<fielddefs>
+			<fielddef id="ID_auth" title="author"/>
+			<fielddef id="ID_keywords" datatype="string" />
+			<fielddef id="ID_hardcopy" datatype="boolean" />
+		</fielddefs>
+		<indexdefs>
+		</indexdefs>
+	</schema>
+	<layouts/>
+	</metadata>
+	<records lastid="4">
+			<record id="1">
+			<field id="ID_auth" value="testauthor" />
+			<field id="ID_keywords" value="k1 k2 k3" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="2">
+			<field id="ID_auth" value="testauthor" />
+			<field id="ID_keywords" value="k2 k3 k4" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="3">
+			<field id="ID_auth" value="testauthor2" />
+			<field id="ID_keywords" value="k3 k4 k5" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+		<record id="4">
+			<field id="ID_auth" value="testauthor" />
+			<field id="ID_auth" value="testauthor2" />
+			<field id="ID_keywords" value="k5 k4 k3 k2 k1" />
+			<field id="ID_hardcopy" value="true" />
+		</record>
+	</records>
+</libris>

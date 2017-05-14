@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris date="2011-06-03 00:00:00 UTC" schemaname="testDatabase1"
+	schemaversion="testDatabase1" databasename="testDatabase1" version="0.0">
+	<metadata>
+		<schema>
+			<groupdefs />
+			<fielddefs>
+				<enumset id="ENUM_doctype">
+					<enumchoice id="DT_journal-article" value="Journal article" />
+					<enumchoice id="DT_proceedings-article" value="Proceedings article" />
+					<enumchoice id="DT_monograph" value="Monograph" />
+					<enumchoice id="DT_book" value="Book" />
+					<enumchoice id="DT_web" value="Web page" />
+					<enumchoice id="DT_pdf" value="PDF file" />
+					<enumchoice id="DT_OTHER" value="other" />
+				</enumset>
+				<enumset id="ENUM_publishers">
+					<enumchoice id="NS_acm" value="ACM" />
+					<enumchoice id="NS_ieee" value="IEEE" />
+					<enumchoice id="NS_ibm" value="IBM" />
+					<enumchoice id="NS_bantam" value="Bantam Books" />
+					<enumchoice id="NS_penguin" value="Penguin Books" />
+					<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
+					<enumchoice id="NS_OTHER" value="other" />
+				</enumset>
+				<fielddef datatype="enum" enumset="ENUM_doctype" id="ID_doctype"
+					title="Document type" required="true" default="DT_journal-article" />
+				<fielddef id="ID_auth" title="author" />
+				<fielddef id="ID_authors" datatype="string" />
+				<fielddef id="ID_title" datatype="string" />
+				<fielddef id="ID_pages" datatype="valuepair" />
+				<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_publishers"
+					default="NS_ibm" />
+				<fielddef id="ID_keywords" datatype="string" />
+				<fielddef id="ID_abstract" datatype="string" />
+				<fielddef id="ID_hardcopy" datatype="boolean" default="true" />
+			</fielddefs>
+			<indexdefs>
+			</indexdefs>
+		</schema>
+		<layouts>
+			<layout id="LO_shortFormDisplay" title="Condensed form layout"
+				type="form" height="400" width="700">
+				<layoutfield title="Author" id="ID_auth" control="textfield" />
+				<layoutfield title="Title" id="ID_title" control="textfield"
+					return="true" />
+			</layout>
+			<layout id="LO_formDisplay" title="Form layout" type="form"
+				height="400" width="700">
+				<layoutusage usedby="newrecord" />
+				<layoutfield title="Author" id="ID_auth" control="textfield" />
+				<layoutfield title="Title" id="ID_title" control="textfield"
+					return="true" />
+				<layoutfield title="Pages" id="ID_pages" control="rangefield"
+					return="true" />
+				<layoutfield title="Publisher" id="ID_publisher"
+					control="enumfield" />
+				<layoutfield title="Hardcopy" id="ID_hardcopy" control="checkbox" />
+				<layoutfield title="Keywords" id="ID_keywords" control="textbox"
+					return="true" />
+				<layoutfield title="Abstract" id="ID_abstract" control="textbox"
+					return="true" />
+				<layoutfield control="enumfield" hspan="1" id="ID_doctype"
+					title="Document type" vspan="1" />
+			</layout>
+			<layout id="LO_browserDisplay" title="Summary" type="list"
+				height="400" width="700">
+				<layoutusage usedby="summarydisplay" />
+				<layoutfield title="Author" id="ID_auth" control="textfield" />
+				<layoutfield title="Title" id="ID_title" control="textfield"
+					return="true" />
+			</layout>
+		</layouts>
+	</metadata>
+	<records lastid="0">
+	</records>
+</libris>
