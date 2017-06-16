@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -23,6 +24,10 @@ import org.lasalledebain.libris.field.FieldValue;
 
 public class RecordEditTests extends TestCase {
 
+	private static final String TEST_PUBLISHER = "test_publisher";
+	private static final String TEST_TITLE = "test_title";
+	private static final String TEST_AUTHOR = "test_author";
+	private static final String TEST_AUTHOR2 = "test_author2";
 	private static final String ID_AUTH = "ID_auth";
 	private static final String ID_PUB = "ID_publisher";
 	private static final String ID_TITL = "ID_title";
@@ -66,6 +71,51 @@ public class RecordEditTests extends TestCase {
 		}
 	}
 	
+	public void testNewRecordWindow() {
+		try {
+			final String testName = getName();
+			TestGUI gui = rebuildAndOpenDatabase(testName);
+			LibrisDatabase db = gui.getDatabase();
+			File dbFile = db.getDatabaseFile();
+			BrowserWindow resultsWindow = gui.getResultsWindow();
+			int recId = 0;
+			Record rec;
+
+			RecordWindow rw = gui.newRecordWindow();
+			rec = rw.getRecord();
+			rec.setEditable(true);
+			Field authFld = rec.getField(ID_AUTH);
+			authFld.addValue(TEST_AUTHOR);
+			Field titleFld = rec.getField(ID_TITL);
+			titleFld.addValue(TEST_TITLE);
+			Field pubFld = rec.getField(ID_PUB);
+			pubFld.addIntegerValue(1);
+			pubFld.addValuePair(-1, TEST_PUBLISHER);
+			rw.refresh();
+			UiField uif = rw.getField(ID_AUTH);
+			checkFieldValues(uif, new String[] {TEST_AUTHOR});
+			authFld.addValue(TEST_AUTHOR2);
+			rw.refresh();
+			uif = rw.getField(ID_AUTH);
+			checkFieldValues(uif, new String[] {TEST_AUTHOR, TEST_AUTHOR2});
+			checkFieldValues(rw.getField(ID_TITL), new String[] {TEST_TITLE});
+		} catch (Throwable e) {
+			e.printStackTrace();
+			fail("unexpected exception");
+		}
+	}
+
+	private void checkFieldValues(UiField uif, String[] expectedValueArray) {
+		Iterator<String> expectedValues = Arrays.asList(expectedValueArray).iterator();
+		for (FieldValue f: uif) {
+			assertTrue("Too few values", expectedValues.hasNext());
+			String expectedValue = expectedValues.next();
+			String actualValue = f.getValueAsString();
+			assertEquals(expectedValue, actualValue);
+		}
+		assertFalse("Too many values", expectedValues.hasNext());
+	}
+	
 	public void testRecordReEdit() {
 		try {
 			final String testName = getName();
@@ -79,12 +129,12 @@ public class RecordEditTests extends TestCase {
 				 rec = gui.newRecord();
 				rec.setEditable(true);
 				Field fld = rec.getField(ID_AUTH);
-				fld.addValue("test_author");
+				fld.addValue(TEST_AUTHOR);
 				fld = rec.getField(ID_TITL);
-				fld.addValue("test_title");
+				fld.addValue(TEST_TITLE);
 				fld = rec.getField(ID_PUB);
 				fld.addIntegerValue(1);
-				fld.addValuePair(-1, "test_publisher");
+				fld.addValuePair(-1, TEST_PUBLISHER);
 				db.put(rec);
 				recId = rec.getRecordId();
 				db.save();
@@ -103,7 +153,7 @@ public class RecordEditTests extends TestCase {
 				LibrisDatabase newDb = newGui.getDatabase();
 				rec = newDb.getRecord(recId);
 				Field fld = rec.getField(ID_PUB);
-				Iterator<String> expectedValues = Arrays.asList(new String [] {"Enumv2", "test_publisher", "foobar"}).iterator();
+				Iterator<String> expectedValues = Arrays.asList(new String [] {"Enumv2", TEST_PUBLISHER, "foobar"}).iterator();
 				for (FieldValue fv: fld.getFieldValues()) {
 					assertEquals(expectedValues.next(), fv.getValueAsString());
 					// System.out.println(fv.getValueAsString());

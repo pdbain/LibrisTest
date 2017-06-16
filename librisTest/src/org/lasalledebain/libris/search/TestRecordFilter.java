@@ -14,6 +14,7 @@ import org.lasalledebain.libris.FilteredRecordList;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
 import org.lasalledebain.libris.RecordList;
+import org.lasalledebain.libris.search.RecordFilter.MATCH_TYPE;
 
 public class TestRecordFilter extends TestCase {
 
@@ -35,7 +36,7 @@ public class TestRecordFilter extends TestCase {
 	}
 	
 	public void testSingleWordFilter() {
-		KeywordFilter filter = new KeywordFilter(true, true, new int[] {0, 1}, new String[] {"k1", "k3"});
+		KeywordFilter filter = new KeywordFilter(MATCH_TYPE.MATCH_EXACT, true, new int[] {0, 1}, new String[] {"k1", "k3"});
 		FilteredRecordList filteredList = new FilteredRecordList(recList, filter);
 		Integer[] ids = new Integer[] {1,4};
 		 Iterator<Integer> expectedIds = Arrays.asList(ids).iterator();
