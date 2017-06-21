@@ -8,22 +8,26 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 
 import org.junit.Test;
+import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.exception.DatabaseException;
 import org.lasalledebain.libris.hashfile.FixedSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.HashBucket;
 import org.lasalledebain.libris.hashfile.HashBucketFactory;
+import org.lasalledebain.libris.hashfile.HashEntry;
+import org.lasalledebain.libris.hashfile.VariableSizeEntryHashBucket;
+import org.lasalledebain.libris.indexes.FileSpaceManager;
 
 public class HashBucketTests extends TestCase {
 
 	private File testFile = null;
-	private HashBucketFactory bfact;
 
 	@Test
 	public void testAddEntry() {
+		HashBucketFactory bfact = FixedSizeEntryHashBucket.getFactory();
 		HashBucket buck = bfact.createBucket(null, 0, null);
-		ArrayList<MockHashEntry> entries;
+		ArrayList<HashEntry> entries;
 		try {
-			entries = Util.fillBucket(buck, (byte) 1);
+			entries = Util.fixedSizeFillBucket(buck, (byte) 1);
 			Util.checkBucket(buck, entries);
 		} catch (DatabaseException e) {
 			e.printStackTrace();
@@ -34,12 +38,13 @@ public class HashBucketTests extends TestCase {
 
 	@Test
 	public void testReadAndWrite() {
-		MockEntryFactory fact = new MockEntryFactory(10);
+		HashBucketFactory bfact = FixedSizeEntryHashBucket.getFactory();
+		MockFixedSizeEntryFactory fact = new MockFixedSizeEntryFactory(10);
 		RandomAccessFile hashFile = Util.MakeHashFile(testFile);
 		HashBucket writeBucket = bfact.createBucket(hashFile,0,fact);
-		ArrayList<MockHashEntry> entries = null;
+		ArrayList<HashEntry> entries = null;
 		try {
-			entries = Util.fillBucket(writeBucket, (byte) 2);
+			entries = Util.fixedSizeFillBucket(writeBucket, (byte) 2);
 			writeBucket.write();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
@@ -55,7 +60,43 @@ public class HashBucketTests extends TestCase {
 		}
 		
 		try {
-		Util.checkBucket((HashBucket<MockHashEntry>) readBucket, entries);
+		Util.checkBucket((HashBucket<HashEntry>) readBucket, entries);
+			hashFile.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			fail("IOException closing hashFile: "+e);
+		}
+		testFile.delete();
+	}
+
+	@Test
+	public void testVariableSizeReadAndWrite() {
+		FileSpaceManager mgr = Utilities.makeFileSpaceManager(getName()+"_mgr");
+		MockOverflowManager oversizeEntryManager = new MockOverflowManager(mgr);
+
+		HashBucketFactory bfact = VariableSizeEntryHashBucket.getFactory(oversizeEntryManager);
+		MockVariableSizeEntryFactory fact = new MockVariableSizeEntryFactory(10);
+		RandomAccessFile hashFile = Util.MakeHashFile(testFile);
+		HashBucket writeBucket = bfact.createBucket(hashFile,0,fact);
+		ArrayList<HashEntry> entries = null;
+		try {
+			entries = Util.variableSizeFillBucket(writeBucket, (byte) 2);
+			writeBucket.write();
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail("Unexpected exception on hashfile");
+		}
+		
+		HashBucket<?> readBucket = bfact.createBucket(hashFile,0,fact);
+		try {
+			readBucket.read();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			fail("Unexpected exception in read hash bucket: "+e1.getMessage());
+		}
+		
+		try {
+		Util.checkBucket((HashBucket<HashEntry>) readBucket, entries);
 			hashFile.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -69,7 +110,6 @@ public class HashBucketTests extends TestCase {
 		if (null == testFile) {
 			testFile = Util.makeTestFileObject("TestFileRecordMap");
 		}
-		bfact = FixedSizeEntryHashBucket.getFactory();
 	}
 
 }

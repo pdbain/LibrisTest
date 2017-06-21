@@ -8,30 +8,31 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.lasalledebain.libris.hashfile.FixedSizeHashEntry;
 import org.lasalledebain.libris.hashfile.HashEntry;
 import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
+import org.lasalledebain.libris.index.AbstractFixedSizeHashEntry;
+import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 
-class MockHashEntry implements HashEntry, VariableSizeHashEntry {
+class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 
-	int key;
 	byte data[];
-	private boolean oversize;
 	/**
 	 * @param key
 	 * @param length total length, including overhead and key
 	 */
-	public MockHashEntry(int key, int length) {
+	public MockFixedSizeHashEntry(int key, int length) {
 		this.key = key;
 		data = new byte[length];
 	}
 
-	public MockHashEntry(int key, int length, byte initialData) {
+	public MockFixedSizeHashEntry(int key, int length, byte initialData) {
 		this(key, length);
 		for (int i = 0; i < data.length; ++i) {
 			data[i] = (byte) ((key * (initialData+1+i))%256);
 		}
 	}
-	public MockHashEntry(int length) {
+	public MockFixedSizeHashEntry(int length) {
 		if (length > 0) {
 			data = new byte[length];
 		}
@@ -39,10 +40,6 @@ class MockHashEntry implements HashEntry, VariableSizeHashEntry {
 	
 	public byte[] getData() {
 		return data;
-	}
-
-	public void setOversize(boolean oversize) {
-		this.oversize = oversize;
 	}
 
 	public void setData(byte[] data) {
@@ -62,7 +59,7 @@ class MockHashEntry implements HashEntry, VariableSizeHashEntry {
 		return s.toString();
 	}
 
-	boolean compare(MockHashEntry other) {
+	boolean compare(MockFixedSizeHashEntry other) {
 		if (!keyEquals(other)) {
 			return false;
 		}
@@ -104,21 +101,13 @@ class MockHashEntry implements HashEntry, VariableSizeHashEntry {
 		ip.readFully(data);
 	}
 
-	public int getKey() {
-		return key;
-	}
-
 	@Override
 	public boolean equals(Object comparand) {
 		if (comparand.getClass() != this.getClass()) {
 			return false;
 		}
-		MockHashEntry mockCAnd = (MockHashEntry) comparand;
+		MockFixedSizeHashEntry mockCAnd = (MockFixedSizeHashEntry) comparand;
 		return compare(mockCAnd);
-	}
-
-	public boolean keyEquals(HashEntry other) {
-		return key == other.getKey();
 	}
 
 	public int getTotalLength() {
@@ -127,28 +116,24 @@ class MockHashEntry implements HashEntry, VariableSizeHashEntry {
 	}
 
 	public int getOverheadLength() {
-		return 4 /* key */ + 2 /* offset */;
-		}
+		return 0;
+	}
 
 	public int getEntryLength() {
-		return isOversize()? OVERSIZE_HASH_ENTRY_LENGTH : data.length;
+		return data.length;
 	}
 
 	public int getDataLength() {
 		return data.length;
 	}
 
-	public void setKey(int newKey) {
-		key = newKey;
-	}	
-	
-	public MockHashEntry clone() {
-		MockHashEntry theClone = new MockHashEntry(key, data.length);
+	public MockFixedSizeHashEntry clone() {
+		MockFixedSizeHashEntry theClone = new MockFixedSizeHashEntry(key, data.length);
 		System.arraycopy(this.data, 0, theClone.data, 0, data.length);
 		return theClone;
 	}
 
-	public boolean keyEquals(MockHashEntry other) {
+	public boolean keyEquals(MockFixedSizeHashEntry other) {
 		return other.getKey() == key;
 	}
 
@@ -164,6 +149,22 @@ class MockHashEntry implements HashEntry, VariableSizeHashEntry {
 
 	public Integer getIntegerKey() {
 		return new Integer(key);
+	}
+
+	@Override
+	public int getKey() {
+		return key;
+	}
+
+	@Override
+	public void setKey(int newKey) {
+		key = newKey;
+		
+	}
+
+	@Override
+	public void setOversize(boolean oversize) {
+		this.oversize = oversize;
 	}
 
 }

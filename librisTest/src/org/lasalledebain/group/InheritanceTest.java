@@ -5,6 +5,7 @@ import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_AND_RECORDS_XML;
 import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_XML;
 
 import java.io.File;
+import java.util.Iterator;
 
 import junit.framework.TestCase;
 
@@ -13,7 +14,9 @@ import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.Libris;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
+import org.lasalledebain.libris.RecordList;
 import org.lasalledebain.libris.exception.InputException;
+import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.field.FieldValue;
 
 public class InheritanceTest extends TestCase {
@@ -81,6 +84,41 @@ public class InheritanceTest extends TestCase {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unexpected exception "+e.getMessage());
+		}
+	}
+	
+	public void testLargeInheritance() {
+		 final int numRecs = 1024;
+		String dbFile = DATABASE_WITH_GROUPS_XML;
+		setupDatabase(dbFile);
+		int lastId = db.getLastRecordId();
+		int maxParent = 0;
+		int minParent = numRecs;
+		try {
+			for (int i = lastId+1; i <= numRecs; ++i) {
+				Record rec = db.newRecord();
+				 maxParent = (int) Math.sqrt(i);
+				 minParent = Math.min(minParent, maxParent);
+				rec.setParent(0, maxParent);
+				int recNum = db.put(rec);
+				assertEquals("wrong ID for new record",  i, recNum);
+			}
+			
+			db.save();
+		} catch (LibrisException e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
+		}
+		for (int i = minParent; i <= maxParent; i++) {
+			RecordList children = db.getChildRecords(i, 0);
+			assertNotNull("Record "+i+" has no children", children);
+			Iterator<Record> childrenIterator = children.iterator();
+			int expectedChild = i*i;
+			for (int c = expectedChild; (c < (expectedChild + (2*i) + 1)) && (c < numRecs); ++c) {
+				assertTrue("too few children", childrenIterator.hasNext());
+				int actualChild = childrenIterator.next().getRecordId();
+				assertEquals("Wrong child", c, actualChild);
+			}
 		}
 	}
 	@After

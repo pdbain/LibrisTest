@@ -22,7 +22,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 
 	private File testFile;
 	private HashBucketFactory<?> bfact;
-	private MockEntryFactory entryFactory;
+	private MockVariableSizeEntryFactory entryFactory;
 	private HashBucket<VariableSizeHashEntry> buck;
 	private RandomAccessFile backingStore;
 	boolean ignoreUnimplemented = Boolean.getBoolean("org.lasalledebain.libris.test.IgnoreUnimplementedTests");
@@ -373,7 +373,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 		System.out.println("oversize entries file: "+mgr.getFilePath().getAbsolutePath());
 		oversizeEntryManager = new MockOverflowManager(mgr);
 		bfact = VariableSizeEntryHashBucket.getFactory(oversizeEntryManager);
-		entryFactory = new MockEntryFactory();
+		entryFactory = new MockVariableSizeEntryFactory();
 		buck = (HashBucket<VariableSizeHashEntry>) bfact.createBucket(backingStore, 0, entryFactory);
 	}
 

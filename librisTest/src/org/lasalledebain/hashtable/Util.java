@@ -10,7 +10,9 @@ import junit.framework.TestCase;
 
 import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.exception.DatabaseException;
+import org.lasalledebain.libris.hashfile.FixedSizeHashEntry;
 import org.lasalledebain.libris.hashfile.HashBucket;
+import org.lasalledebain.libris.hashfile.HashEntry;
 
 public class Util extends TestCase {
 
@@ -18,14 +20,14 @@ public class Util extends TestCase {
 	 * @param buck
 	 * @param entries
 	 */
-	static void checkBucket(HashBucket<MockHashEntry> buck,
-			ArrayList<MockHashEntry> entries) {
-		Iterator<MockHashEntry> ti = entries.iterator();
+	static void checkBucket(HashBucket<HashEntry> buck,
+			ArrayList<HashEntry> entries) {
+		Iterator<HashEntry> ti = entries.iterator();
 		int entryCount = 0;
-		for (MockHashEntry e: buck) {
+		for (HashEntry e: buck) {
 			assertTrue("too many entries in the bucket", ti.hasNext());
-			MockHashEntry t = ti.next();
-			assertTrue("mismatch in hash entries", t.compare(e));
+			HashEntry t = ti.next();
+			assertTrue("mismatch in hash entries", 0 == t.compareTo(e));
 			++entryCount;
 		}
 		assertFalse("too few entries in the bucket.  Expected "+entries.size()+" got "+entryCount, ti.hasNext());
@@ -37,27 +39,59 @@ public class Util extends TestCase {
 	 * @return
 	 * @throws DatabaseException 
 	 */
-	static ArrayList<MockHashEntry> fillBucket(HashBucket<MockHashEntry> buck, byte initialData) throws DatabaseException {
+	static ArrayList<HashEntry> variableSizeFillBucket(HashBucket<HashEntry> buck, byte initialData) throws DatabaseException {
 		int bucketSize = HashBucket.getBucketSize();
-		ArrayList<MockHashEntry> entries;
+		ArrayList<HashEntry> entries;
 		int entryCount = 0;
 		int entryLength = 10; 
-		MockHashEntry newEntry = null;
-		entries = new ArrayList<MockHashEntry>();
+		MockVariableSizeHashEntry newEntry = null;
+		entries = new ArrayList<HashEntry>();
 		
 		do {
 			if (null != newEntry) {
 				entries.add(newEntry);
 			}
 			int occupancy = buck.getOccupancy();
-			newEntry = new MockHashEntry(entryCount+1, entryLength, initialData);
+			newEntry = new MockVariableSizeHashEntry(entryCount+1, entryLength, initialData);
 			/* all buckets have at least 4 bytes */
 			assertEquals("wrong value for occupancy for key "+entryCount, 
-					entryCount*newEntry.getTotalLength()+4, occupancy);
+					entryCount*newEntry.getTotalLength()+2, occupancy);
 			++entryCount;
 			++initialData;
 			boolean expectedOccupancy = entryCount <= ((bucketSize/newEntry.getTotalLength()) + 1);
 			assertTrue("bucket overfilled: "+entryCount, expectedOccupancy);
+		} while (buck.addElement(newEntry));
+		return entries;
+	}
+
+	/**
+	 * @param buck
+	 * @param initialData
+	 * @return
+	 * @throws DatabaseException 
+	 */
+	static ArrayList<FixedSizeHashEntry> fixedSizeFillBucket(HashBucket<HashEntry> buck, byte initialData) throws DatabaseException {
+		int bucketSize = HashBucket.getBucketSize();
+		ArrayList<FixedSizeHashEntry> entries;
+		int entryCount = 0;
+		final int entryLength = 10; 
+		MockFixedSizeHashEntry newEntry = null;
+		entries = new ArrayList<FixedSizeHashEntry>();
+		
+		do {
+			if (null != newEntry) {
+				entries.add(newEntry);
+			}
+			int occupancy = buck.getOccupancy();
+			newEntry = new MockFixedSizeHashEntry(entryCount+1, entryLength, initialData);
+			/* all buckets have at least 4 bytes */
+			int expectedOccupancy = entryCount*newEntry.getTotalLength()+4;
+			assertEquals("wrong value for occupancy for key "+entryCount, 
+					expectedOccupancy, occupancy);
+			++entryCount;
+			++initialData;
+			boolean notOverfilled = entryCount <= ((bucketSize/newEntry.getTotalLength()) + 1);
+			assertTrue("bucket overfilled: "+entryCount, notOverfilled);
 		} while (buck.addElement(newEntry));
 		return entries;
 	}
