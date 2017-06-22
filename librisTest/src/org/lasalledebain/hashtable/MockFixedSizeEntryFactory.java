@@ -15,15 +15,21 @@ public class MockFixedSizeEntryFactory implements FixedSizeEntryFactory<MockFixe
 	}
 
 	public MockFixedSizeEntryFactory() {
-		length = -1;
+		length = 4;
 	}
 
 	int length;
-	public MockFixedSizeHashEntry makeEntry() {
-		return new MockFixedSizeHashEntry(length);
+	public MockFixedSizeHashEntry makeEntry(int currentKey) {
+		testData += currentKey;
+		return new MockFixedSizeHashEntry(currentKey, length, testData);
 	}
 
 	public int getEntrySize() {
 		return length+4;
+	}
+
+	@Override
+	public MockFixedSizeHashEntry makeEntry() {
+		return new MockFixedSizeHashEntry(length);
 	}
 }

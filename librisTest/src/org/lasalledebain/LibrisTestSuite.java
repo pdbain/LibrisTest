@@ -7,6 +7,7 @@ import org.lasalledebain.group.GroupManagerTests;
 import org.lasalledebain.group.GroupDefsTests;
 import org.lasalledebain.group.MemberTest;
 import org.lasalledebain.hashtable.HashBucketTests;
+import org.lasalledebain.hashtable.HashFileTest;
 import org.lasalledebain.hashtable.VariableSizeEntryHashBucketTest;
 import org.lasalledebain.libris.indexes.FileSpaceManagerTests;
 import org.lasalledebain.libris.indexes.LibrisRecordMapTest;
@@ -24,6 +25,7 @@ public class LibrisTestSuite {
 		TestSuite suite = new TestSuite("Test for org.lasalledebain");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(FieldTest.class);
+		suite.addTestSuite(HashFileTest.class);
 		suite.addTestSuite(RecordTests.class);
 		suite.addTestSuite(EnumTests.class);
 		suite.addTestSuite(RecordListTests.class);

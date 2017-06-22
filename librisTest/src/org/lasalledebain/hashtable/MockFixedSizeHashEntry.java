@@ -120,7 +120,7 @@ class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 	}
 
 	public int getEntryLength() {
-		return data.length;
+		return 4  /* key */ + data.length;
 	}
 
 	public int getDataLength() {

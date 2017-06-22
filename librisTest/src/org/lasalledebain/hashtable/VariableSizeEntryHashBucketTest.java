@@ -1,6 +1,7 @@
 package org.lasalledebain.hashtable;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,7 +38,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			populateBucket(numEntries, entries);
 			checkEntries(buck, numEntries, entries);
 
-		} catch (DatabaseException e) {
+		} catch (DatabaseException | IOException e) {
 			e.printStackTrace();
 			fail("unexpected exception:"+e.getMessage());
 		}
@@ -51,7 +52,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			int entryCount = populateBucket(numEntries, entries);
 			checkEntries(buck, entryCount, entries);
 
-		} catch (DatabaseException e) {
+		} catch (DatabaseException | IOException e) {
 			e.printStackTrace();
 			fail("unexpected exception:"+e.getMessage());
 		}
@@ -387,7 +388,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 
 	private int populateBucket(final int numEntries,
 			HashMap<Integer, VariableSizeHashEntry> entries)
-			throws DatabaseException {
+			throws DatabaseException, IOException {
 		int entryCount = 0;
 		int expectedOccupancy = 2;
 		for (int key = 1; key <= numEntries; key++ ) {
@@ -407,7 +408,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 		return entryCount;
 	}
 
-	private VariableSizeHashEntry createEntry(int key, int length) {
+	private VariableSizeHashEntry createEntry(int key, int length) throws IOException {
 		VariableSizeHashEntry newEntry = entryFactory.makeVariableSizeEntry(key, length);
 		byte[] eData = newEntry.getData();
 		byte cdata = (byte) Character.getNumericValue('a');

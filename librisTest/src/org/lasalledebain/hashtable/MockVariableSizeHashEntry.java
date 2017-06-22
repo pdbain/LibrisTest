@@ -108,17 +108,6 @@ class MockVariableSizeHashEntry extends AbstractVariableSizeHashEntry implements
 		return compare(mockCAnd);
 	}
 
-	public int getTotalLength() {
-		int result = getEntryLength() + getOverheadLength();
-		return result;
-	}
-
-	@Override
-	public int getOverheadLength() {
-		return 4 /* key */ + 2 /* offset */;
-	}
-
-
 	public int getDataLength() {
 		return data.length;
 	}
