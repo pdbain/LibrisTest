@@ -60,7 +60,7 @@ public class Util extends TestCase {
 			++initialData;
 			boolean expectedOccupancy = entryCount <= ((bucketSize/newEntry.getTotalLength()) + 1);
 			assertTrue("bucket overfilled: "+entryCount, expectedOccupancy);
-		} while (buck.addElement(newEntry));
+		} while (buck.addEntry(newEntry));
 		return entries;
 	}
 
@@ -92,7 +92,7 @@ public class Util extends TestCase {
 			++initialData;
 			boolean notOverfilled = entryCount <= ((bucketSize/newEntry.getTotalLength()) + 1);
 			assertTrue("bucket overfilled: "+entryCount, notOverfilled);
-		} while (buck.addElement(newEntry));
+		} while (buck.addEntry(newEntry));
 		return entries;
 	}
 

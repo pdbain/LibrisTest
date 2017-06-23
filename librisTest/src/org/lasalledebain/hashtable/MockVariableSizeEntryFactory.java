@@ -22,7 +22,7 @@ public class MockVariableSizeEntryFactory implements VariableSizeEntryFactory<Mo
 	}
 
 	int length;
-	public VariableSizeHashEntry makeEntry() {
+	public MockVariableSizeHashEntry makeEntry() {
 		return new MockVariableSizeHashEntry(length);
 	}
 

@@ -3,6 +3,7 @@ package org.lasalledebain.hashtable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -17,6 +18,8 @@ import org.lasalledebain.libris.hashfile.HashBucket;
 import org.lasalledebain.libris.hashfile.HashBucketFactory;
 import org.lasalledebain.libris.hashfile.VariableSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
+import org.lasalledebain.libris.index.AffiliateListEntry;
+import org.lasalledebain.libris.index.AffiliateListEntry.AffiliateListEntryFactory;
 import org.lasalledebain.libris.indexes.FileSpaceManager;
 
 public class VariableSizeEntryHashBucketTest extends TestCase{
@@ -69,7 +72,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				int length = entryCount + 1;
 				VariableSizeHashEntry newEntry = entryFactory.makeVariableSizeEntry(key, length);
 				entries.put(new Integer(key), newEntry);
-				boolean result = buck.addElement(newEntry);
+				boolean result = buck.addEntry(newEntry);
 				++entryCount;
 				expectedOccupancy += 4 + 2 + length;
 				if (expectedOccupancy <= HashBucket.getBucketSize()) {
@@ -88,6 +91,53 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 	}
 
 	@Test
+	public void testAffiliatesSanity() {
+		try {
+			final int numEntries = 20;
+			final int affiliateScale = 10;
+			int entryCount = 0;
+			Random r = new Random(314126535);
+			HashMap<Integer, int[][]> entries= new HashMap<Integer, int[][]>(numEntries);
+			AffiliateListEntryFactory eFactory = AffiliateListEntry.getFactory();
+			VariableSizeEntryHashBucket<AffiliateListEntry> buck = new VariableSizeEntryHashBucket<>(null, 0, null, null);
+			for (int key = 1; key < numEntries; key++ ) {
+				int childrenAndAffiliates[][] = new int[2][];
+				AffiliateListEntry newEntry = eFactory.makeEntry(key);
+				double ng = r.nextGaussian();
+				int numChildren = Math.abs((int) (ng * affiliateScale));
+				childrenAndAffiliates[0] = new int[numChildren];
+				for (int i = 0; i < numChildren; ++i) {
+					int newChild = r.nextInt(numEntries) + 1;
+					childrenAndAffiliates[0][i] = newChild;
+					newEntry.addChild(newChild);
+				}
+				Arrays.sort(childrenAndAffiliates[0]);
+				ng = r.nextGaussian();
+				int numAffiliates = Math.abs((int) (ng * affiliateScale));
+				childrenAndAffiliates[1] = new int[numAffiliates];
+				for (int i = 0; i < numAffiliates; ++i) {
+					int newAffiliate = r.nextInt(numEntries) + 1;
+					childrenAndAffiliates[1][i] = newAffiliate;
+					newEntry.addAffiliate(newAffiliate);
+				}
+				Arrays.sort(childrenAndAffiliates[1]);
+				entries.put(key, childrenAndAffiliates);
+				buck.addEntry(newEntry);
+			}
+			for (int key = 1; key < numEntries; key++ ) {
+				AffiliateListEntry e = buck.getEntry(key);
+				int[][] expectedData = entries.get(key);
+				Utilities.compareIntLists("children", expectedData[0], e.getChildren());
+				Utilities.compareIntLists("affiliates", expectedData[1], e.getAffiliates());
+			}
+
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail("unexpected exception:"+e.getMessage());
+		}
+	}
+
+	@Test
 	public void testExactFill() {
 		try {
 			final int numEntries = 128;
@@ -98,7 +148,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				int length = Math.min(32, HashBucket.getBucketSize()-(expectedOccupancy + 6));
 				VariableSizeHashEntry newEntry = entryFactory.makeVariableSizeEntry(key, length);
 				entries.put(new Integer(key), newEntry);
-				boolean result = buck.addElement(newEntry);
+				boolean result = buck.addEntry(newEntry);
 				++entryCount;
 				expectedOccupancy += 4 + 2 + length;
 				if (expectedOccupancy >= HashBucket.getBucketSize()) {
@@ -144,7 +194,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			for (int key = 1; key <= numEntries; key++ ) {
 				VariableSizeHashEntry newEntry = createEntry(key, length);
 				entries.put(key, newEntry);
-				boolean result = buck.addElement(newEntry);
+				boolean result = buck.addEntry(newEntry);
 				int occupancy = buck.getOccupancy();
 				assertTrue("bucket add failed on key "+key, result);
 				length *= 2;
@@ -173,7 +223,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				int range = lengthGen.nextInt(10) + 1;
 				int length = Math.abs(lengthGen.nextInt() % (1 << range));
 				VariableSizeHashEntry newEntry = createEntry(key, length);
-				addMore = buck.addElement(newEntry);
+				addMore = buck.addEntry(newEntry);
 				int occupancy = buck.getOccupancy();
 				if (addMore) {
 					entries.put(key, newEntry);
@@ -238,7 +288,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			for (int key = 1; key <= numEntries; key++ ) {
 				VariableSizeHashEntry newEntry = createEntry(key, length);
 				entries.put(key, newEntry);
-				boolean result = buck.addElement(newEntry);
+				boolean result = buck.addEntry(newEntry);
 				int occupancy = buck.getOccupancy();
 				assertTrue("bucket add failed on key "+key, result);
 				length *= 2;
@@ -289,11 +339,11 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				HashBucket<VariableSizeHashEntry> tempBuck = (HashBucket<VariableSizeHashEntry>) bfact.createBucket(backingStore, 0, entryFactory);
 				tempBuck.read();
 				checkEntries(tempBuck, numEntries, entries);
-				VariableSizeHashEntry e = tempBuck.findEntry(3);
+				VariableSizeHashEntry e = tempBuck.getEntry(3);
 				byte[] dat = e.getData();
 				dat[0] = (byte) 0x55;
 				entries.put(3, e);
-				e = tempBuck.findEntry(13);
+				e = tempBuck.getEntry(13);
 				dat = e.getData();
 				dat[0] = (byte) 0xaa;
 				entries.put(13, e);
@@ -324,7 +374,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				for (int key = 1; key <= numEntries; key++ ) {
 					VariableSizeHashEntry newEntry = createEntry(key, length);
 					entries.put(key, newEntry);
-					boolean result = tempBuck.addElement(newEntry);
+					boolean result = tempBuck.addEntry(newEntry);
 					int occupancy = tempBuck.getOccupancy();
 					assertTrue("bucket add failed on key "+key, result);
 					length *= 2;
@@ -348,7 +398,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 					oldEntry.setData(dat);
 					oldEntry.setOversize((length > 128) || (key %2) == 1);
 					entries.put(key, oldEntry);
-					boolean result = tempBuck.addElement(oldEntry);
+					boolean result = tempBuck.addEntry(oldEntry);
 					int occupancy = tempBuck.getOccupancy();
 					assertTrue("bucket add failed on key "+key, result);
 					length /= 2;
@@ -395,7 +445,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			int length = 32;
 			VariableSizeHashEntry newEntry = createEntry(key, length);
 			entries.put(key, newEntry);
-			boolean result = buck.addElement(newEntry);
+			boolean result = buck.addEntry(newEntry);
 			expectedOccupancy += 4 + 2 + length;
 			if (expectedOccupancy <= HashBucket.getBucketSize()) {
 				++entryCount;

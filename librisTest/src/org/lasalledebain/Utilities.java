@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -378,6 +379,16 @@ public class Utilities extends TestCase {
 			fail("Error rebuilding database");
 		}
 		return db;
+	}
+
+	public static void compareIntLists(String dType, int[] expectedData, int[] actualData) {
+		if (!Arrays.equals(expectedData, actualData)) {
+			System.err.print("Expected "+dType+": ");
+			for (int i: expectedData) System.err.print(i+" ");
+			System.err.print("Actual "+dType+": ");
+			for (int i: actualData) System.err.print(i+" ");
+			System.err.print("\n");
+		}
 	}
 
 }
