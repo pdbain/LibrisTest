@@ -4,17 +4,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.lasalledebain.libris.Field;
+import org.lasalledebain.libris.Field.FieldType;
 import org.lasalledebain.libris.FileAccessManager;
 import org.lasalledebain.libris.LibrisConstants;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
-import org.lasalledebain.libris.RecordId;
 import org.lasalledebain.libris.RecordTemplate;
 import org.lasalledebain.libris.Schema;
-import org.lasalledebain.libris.Field.FieldType;
 import org.lasalledebain.libris.exception.DatabaseException;
 import org.lasalledebain.libris.exception.FieldDataException;
 import org.lasalledebain.libris.exception.LibrisException;
@@ -23,6 +20,8 @@ import org.lasalledebain.libris.indexes.LibrisJournalFileManager;
 import org.lasalledebain.libris.util.DiagnosticDatabase;
 import org.lasalledebain.libris.xmlUtils.ElementManager;
 import org.lasalledebain.libris.xmlUtils.LibrisXMLConstants;
+
+import junit.framework.TestCase;
 
 public class JournalTest extends TestCase implements LibrisConstants, LibrisXMLConstants {
 
@@ -47,7 +46,7 @@ public class JournalTest extends TestCase implements LibrisConstants, LibrisXMLC
 		testDatabase.setSchema(schem);
 
 		journalFile = new File(workDir, "JournalTest"+'.'+FILENAME_JOURNAL_SUFFIX);
-		journalFileMgr = testDatabase.getFileMgr().makeAccessManager(journalFile);
+		journalFileMgr = testDatabase.getFileMgr().makeAccessManager(getName(), journalFile);
 		System.out.println("Journal file: "+journalFile.getPath());
 	}
 	public void testAddRecord() {

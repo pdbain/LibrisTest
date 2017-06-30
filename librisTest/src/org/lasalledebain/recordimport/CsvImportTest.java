@@ -109,7 +109,8 @@ public class CsvImportTest extends TestCase {
 		valueTranslations = new HashMap<String, String>();
 		valueTranslations.put("ACM", "NS_acm");
 		valueTranslations.put("IEEE", "NS_ieee");
-		db1Mgr = testDatabase.getFileMgr().makeAccessManager(new File(Utilities.getTestDataDirectory(), 
+		db1Mgr = testDatabase.getFileMgr().makeAccessManager(getName(), 
+				new File(Utilities.getTestDataDirectory(), 
 				Utilities.TEST_DB1_IMPORT_FILE));
 	}
 

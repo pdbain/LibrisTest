@@ -27,7 +27,7 @@ public class TestFileRecordMap extends TestCase {
 		workingDirectory.mkdirs();
 		indexFile = new File(workingDirectory, "testIndexFile");
 		fileMgr  = new LibrisFileManager(workingDirectory, indexFile);
-		FileAccessManager indexFileMgr = fileMgr.makeAccessManager(indexFile);
+		FileAccessManager indexFileMgr = fileMgr.makeAccessManager(getName(), indexFile);
 		index = new FileRecordMap(indexFileMgr, false);
 	}
 
@@ -77,7 +77,7 @@ public class TestFileRecordMap extends TestCase {
 			index.setSize(DEFAULT_NUM_ENTRIES*2);
 			populateIndex(DEFAULT_NUM_ENTRIES, postionStride);
 			index.close();
-			FileAccessManager indexFileMgr = fileMgr.makeAccessManager(indexFile);
+			FileAccessManager indexFileMgr = fileMgr.makeAccessManager(getName(), indexFile);
 			index = new FileRecordMap(indexFileMgr, true);
 			index.putRecordPosition(69,31415926535L);
 		} catch (DatabaseException exc) {
