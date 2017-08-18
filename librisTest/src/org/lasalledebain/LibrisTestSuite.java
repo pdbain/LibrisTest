@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.lasalledebain.group.GroupManagerTests;
+import org.lasalledebain.group.InheritanceTest;
 import org.lasalledebain.group.GroupDefsTests;
 import org.lasalledebain.group.MemberTest;
 import org.lasalledebain.hashtable.HashBucketTests;
@@ -47,6 +48,7 @@ public class LibrisTestSuite {
 		suite.addTestSuite(MemberTest.class);
 		suite.addTestSuite(TestKeyIntegerTuple.class);
 		suite.addTestSuite(TestFileRecordMap.class);
+		suite.addTestSuite(InheritanceTest.class);
 		//$JUnit-END$
 		return suite;
 	}
