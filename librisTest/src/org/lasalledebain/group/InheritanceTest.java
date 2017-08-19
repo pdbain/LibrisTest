@@ -18,6 +18,7 @@ import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
 import org.lasalledebain.libris.RecordList;
 import org.lasalledebain.libris.exception.DatabaseException;
+import org.lasalledebain.libris.exception.FieldDataException;
 import org.lasalledebain.libris.exception.InputException;
 import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.field.FieldValue;
@@ -26,20 +27,6 @@ public class InheritanceTest extends TestCase {
 	File testDatabaseFileCopy;
 	LibrisDatabase db;
 	String fieldNamesAndValues[][] = {{"",""}, {"ID_publisher", "Publisher1"}, {"ID_volume", "Volume 1"}, {"ID_title", "Title1"}};
-
-	void fetchAndCheckField(Record rec) {
-		int recId = rec.getRecordId();
-		try {
-			for (int i = 1; i <= recId; ++i) {
-				FieldValue fv;
-				fv = rec.getFieldValue(fieldNamesAndValues[i][0]);
-				assertEquals("record "+i, fieldNamesAndValues[i][1], fv.getMainValueAsString());
-			}
-		} catch (InputException e) {
-			e.printStackTrace();
-			fail("unexpected exception "+e.getMessage());
-		}
-	}
 
 	public void testSanity() {
 		String dbFile = DATABASE_WITH_GROUPS_AND_RECORDS_XML;
@@ -93,17 +80,6 @@ public class InheritanceTest extends TestCase {
 		}
 	}
 
-	private void setupDatabase(String dbFile) {
-		try {
-			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
-			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			System.out.println("database rebuilt");
-		} catch (Exception e) {
-			e.printStackTrace();
-			fail("unexpected exception "+e.getMessage());
-		}
-	}
-	
 	public void testAddChild() {
 		String dbFile = DATABASE_WITH_GROUPS_XML;
 		setupDatabase(dbFile);
@@ -125,23 +101,8 @@ public class InheritanceTest extends TestCase {
 		}
 	}
 
-	private void checkChild(int childId, final int parentId) throws InputException {
-		Record parentRec = db.getRecord(parentId);
-		boolean found = false;
-		for (Record r: db.getChildRecords(parentId, 0, false)) {
-			if (r.getRecordId() == childId) {
-				found = true;
-				break;
-			}
-		}
-		assertTrue("child not found", found);
-		Record actualChild = db.getRecord(childId);
-		assertNotNull("cannot get "+childId, actualChild);
-		assertEquals("Wrong parent",  parentId, actualChild.getParent(0));
-		}
-
 	public void testInheritanceSanity() {
-		final int numRecs = 8;
+		final int numRecs = 16;
 		String dbFile = DATABASE_WITH_GROUPS_XML;
 		HashMap<Integer, HashSet<Integer>> expectedChildren = new HashMap<>(numRecs);
 		setupDatabase(dbFile);
@@ -149,6 +110,7 @@ public class InheritanceTest extends TestCase {
 		int maxParent = 0;
 		int minParent = numRecs;
 		try {
+			initializeExpectedChildren(expectedChildren, lastId);
 			for (int i = lastId+1; i <= numRecs; ++i) {
 				Record rec = db.newRecord();
 				maxParent = (int) Math.sqrt(i);
@@ -168,7 +130,7 @@ public class InheritanceTest extends TestCase {
 			e.printStackTrace();
 			fail("unexpected exception "+e.getMessage());
 		}
-		for (int i = 1; i <= lastId; ++i) {
+		for (int i = 1; i <= numRecs; ++i) {
 			try {
 				Record r = db.getRecord(i);
 				assertEquals("Wrong record ID",  i, r.getRecordId());
@@ -178,7 +140,7 @@ public class InheritanceTest extends TestCase {
 			}
 		}
 		try {
-			for (int i = minParent; i <= maxParent; ++i) {
+			for (int i = 1; i <= numRecs; ++i) {
 				RecordList children;
 				children = db.getChildRecords(i, 0, false);
 				HashSet<Integer> childrenSet = expectedChildren.get(i);
@@ -207,23 +169,9 @@ public class InheritanceTest extends TestCase {
 		HashMap<Integer, HashSet<Integer>> expectedChildren = new HashMap<>(numRecs);
 		setupDatabase(dbFile);
 		int lastId = db.getLastRecordId();
-		int maxParent = 0;
-		int minParent = numRecs;
 		try {
-			for (int i = lastId+1; i <= numRecs; ++i) {
-				Record rec = db.newRecord();
-				maxParent = (int) Math.sqrt(i);
-				minParent = Math.min(minParent, maxParent);
-				rec.setParent(0, maxParent);
-				int recNum = db.put(rec);
-				assertEquals("wrong ID for new record",  i, recNum);
-				HashSet<Integer> s = expectedChildren.get(maxParent);
-				if (null == s) {
-					s = new HashSet<>();
-					expectedChildren.put(maxParent, s);
-				}
-				s.add(recNum);
-			}
+			initializeExpectedChildren(expectedChildren, lastId);
+			addChildren(numRecs, lastId, expectedChildren);
 			db.save();
 		} catch (LibrisException e) {
 			e.printStackTrace();
@@ -239,7 +187,7 @@ public class InheritanceTest extends TestCase {
 			}
 		}
 		try {
-			for (int i = minParent; i <= maxParent; ++i) {
+			for (int i = 1; i <= numRecs; ++i) {
 				RecordList children;
 				children = db.getChildRecords(i, 0, false);
 				HashSet<Integer> childrenSet = expectedChildren.get(i);
@@ -264,13 +212,14 @@ public class InheritanceTest extends TestCase {
 
 	public void testInheritanceSaveReopen() {
 		final int numRecs = 1024;
-		String dbFile = DATABASE_WITH_GROUPS_XML;
+		String dbFile = DATABASE_WITH_GROUPS_AND_RECORDS_XML;
 		HashMap<Integer, HashSet<Integer>> expectedChildren = new HashMap<>(numRecs);
 		setupDatabase(dbFile);
 		int lastId = db.getLastRecordId();
 		int maxParent = 0;
 		int minParent = numRecs;
 		try {
+			initializeExpectedChildren(expectedChildren, lastId);
 			for (int i = lastId+1; i <= numRecs; ++i) {
 				Record rec = db.newRecord();
 				maxParent = (int) Math.sqrt(i);
@@ -285,14 +234,12 @@ public class InheritanceTest extends TestCase {
 				}
 				s.add(recNum);
 			}
+			File builtDatabaseFile = db.getDatabaseFile();
 			db.save();
 			db.close();
-		} catch (LibrisException e) {
-			e.printStackTrace();
-			fail("unexpected exception "+e.getMessage());
-		}
-		try {
-			db = Libris.openDatabase(new File(dbFile), null);
+			db = Libris.openDatabase(builtDatabaseFile, null);
+			lastId = db.getLastRecordId();
+			assertEquals("database has wrong number of records",numRecs, lastId);
 			for (int i = minParent; i <= maxParent; ++i) {
 				RecordList children;
 				children = db.getChildRecords(i, 0, false);
@@ -317,7 +264,7 @@ public class InheritanceTest extends TestCase {
 	}
 
 	public void testLargeInheritance() {
-		final int numRecs = 1024;
+		final int numRecs = 10000;
 		String dbFile = DATABASE_WITH_GROUPS_XML;
 		HashMap<Integer, HashSet<Integer>> expectedChildren = new HashMap<>(numRecs);
 		setupDatabase(dbFile);
@@ -325,6 +272,7 @@ public class InheritanceTest extends TestCase {
 		int maxParent = 0;
 		int minParent = numRecs;
 		try {
+			initializeExpectedChildren(expectedChildren, lastId);
 			for (int i = lastId+1; i <= numRecs; ++i) {
 				Record rec = db.newRecord();
 				maxParent = (int) Math.sqrt(i);
@@ -367,6 +315,77 @@ public class InheritanceTest extends TestCase {
 			fail("unexpected exception: "+e.getMessage());
 		}
 	}
+	void fetchAndCheckField(Record rec) {
+		int recId = rec.getRecordId();
+		try {
+			for (int i = 1; i <= recId; ++i) {
+				FieldValue fv;
+				fv = rec.getFieldValue(fieldNamesAndValues[i][0]);
+				assertEquals("record "+i, fieldNamesAndValues[i][1], fv.getMainValueAsString());
+			}
+		} catch (InputException e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
+		}
+	}
+
+	private void setupDatabase(String dbFile) {
+		try {
+			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
+			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			System.out.println("database rebuilt");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
+		}
+	}
+
+	private void initializeExpectedChildren(HashMap<Integer, HashSet<Integer>> expectedChildren, int lastId) {
+		for (int i = 1; i <= lastId; ++i) {
+			HashSet s = new HashSet<>();
+			expectedChildren.put(i, s);
+			RecordList children = db.getChildRecords(i, 0, false);
+			for (Record c: children) {
+				s.add(c.getRecordId());
+			}
+		}
+	}
+
+	private void addChildren(final int numRecs, int lastId, HashMap<Integer, HashSet<Integer>> expectedChildren)
+			throws InputException, FieldDataException, LibrisException {
+		int minParent = numRecs;
+		int maxParent = 0;
+		for (int i = lastId+1; i <= numRecs; ++i) {
+			Record rec = db.newRecord();
+			maxParent = (int) Math.sqrt(i);
+			minParent = Math.min(minParent, maxParent);
+			rec.setParent(0, maxParent);
+			int recNum = db.put(rec);
+			assertEquals("wrong ID for new record",  i, recNum);
+			HashSet<Integer> s = expectedChildren.get(maxParent);
+			if (null == s) {
+				s = new HashSet<>();
+				expectedChildren.put(maxParent, s);
+			}
+			s.add(recNum);
+		}
+	}
+
+	private void checkChild(int childId, final int parentId) throws InputException {
+	Record parentRec = db.getRecord(parentId);
+	boolean found = false;
+	for (Record r: db.getChildRecords(parentId, 0, false)) {
+		if (r.getRecordId() == childId) {
+			found = true;
+			break;
+		}
+	}
+	assertTrue("child not found", found);
+	Record actualChild = db.getRecord(childId);
+	assertNotNull("cannot get "+childId, actualChild);
+	assertEquals("Wrong parent",  parentId, actualChild.getParent(0));
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Utilities.deleteTestDatabaseFiles(DATABASE_WITH_GROUPS_XML);
