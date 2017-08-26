@@ -353,16 +353,6 @@ public class InheritanceTest extends TestCase {
 		}
 	}
 
-	// TODO PDB_DEBUG
-	private void debugaddChildren(final int numRecs, int lastId, HashMap<Integer, HashSet<Integer>> expectedChildren)
-			throws InputException, FieldDataException, LibrisException {
-		for (int i = lastId+1; i <= numRecs; ++i) {
-			Record rec = db.newRecord();
-			int recNum = db.put(rec);
-			assertEquals("wrong ID for new record",  i, recNum);
-		}
-	}
-
 	private void checkChild(int childId, final int parentId) throws InputException {
 	Record parentRec = db.getRecord(parentId);
 	boolean found = false;
