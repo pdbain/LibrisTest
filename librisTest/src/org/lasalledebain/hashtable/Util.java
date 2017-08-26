@@ -27,7 +27,7 @@ public class Util extends TestCase {
 		for (HashEntry e: buck) {
 			assertTrue("too many entries in the bucket", ti.hasNext());
 			HashEntry t = ti.next();
-			assertTrue("mismatch in hash entries", 0 == t.compareTo(e));
+			assertTrue("mismatch in hash entries", t.equals(e));
 			++entryCount;
 		}
 		assertFalse("too few entries in the bucket.  Expected "+entries.size()+" got "+entryCount, ti.hasNext());
@@ -70,11 +70,11 @@ public class Util extends TestCase {
 	 * @return
 	 * @throws DatabaseException 
 	 */
-	static ArrayList<FixedSizeHashEntry> fixedSizeFillBucket(HashBucket<HashEntry> buck, byte initialData) throws DatabaseException {
+	static ArrayList<FixedSizeHashEntry> fixedSizeFillBucket(HashBucket<HashEntry> buck, int entryLength,
+			byte initialData) throws DatabaseException {
 		int bucketSize = HashBucket.getBucketSize();
 		ArrayList<FixedSizeHashEntry> entries;
 		int entryCount = 0;
-		final int entryLength = 10; 
 		MockFixedSizeHashEntry newEntry = null;
 		entries = new ArrayList<FixedSizeHashEntry>();
 		

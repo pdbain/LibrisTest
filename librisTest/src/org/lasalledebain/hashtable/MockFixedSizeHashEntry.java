@@ -1,49 +1,48 @@
 package org.lasalledebain.hashtable;
 
-import static org.junit.Assert.fail;
-
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
-import org.lasalledebain.libris.hashfile.FixedSizeHashEntry;
 import org.lasalledebain.libris.hashfile.HashEntry;
-import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
 import org.lasalledebain.libris.index.AbstractFixedSizeHashEntry;
-import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 
 class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 
-	byte data[];
+	final byte data[];
 	/**
 	 * @param key
 	 * @param length total length, including overhead and key
 	 */
-	public MockFixedSizeHashEntry(int key, int length) {
-		this.key = key;
-		data = new byte[length];
+	public MockFixedSizeHashEntry(int key, byte dat[]) {
+		super(key);
+		data = Arrays.copyOf(dat, dat.length);
 	}
 
 	public MockFixedSizeHashEntry(int key, int length, byte initialData) {
-		this(key, length);
-		for (int i = 0; i < data.length; ++i) {
+		super(key);
+		data = new byte[length];
+		for (int i = 0; i < length; ++i) {
 			data[i] = (byte) ((key * (initialData+1+i))%256);
 		}
 	}
-	public MockFixedSizeHashEntry(int length) {
-		if (length > 0) {
-			data = new byte[length];
-		}
-	}
 	
-	public byte[] getData() {
-		return data;
+	public MockFixedSizeHashEntry(int key, ByteBuffer src, int len) {
+		super(key);
+		data = new byte[len];
+		src.get(data, 0, len);
 	}
 
-	public void setData(byte[] data) {
-		this.data = data;
+	public MockFixedSizeHashEntry(DataInput backingStore, int length) throws IOException {
+		super(backingStore.readInt());
+		data = new byte[length];
+		backingStore.readFully(data);
+	}
+
+	public byte[] getData() {
+		return data;
 	}
 
 	@Override
@@ -78,6 +77,7 @@ class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 		backingStore.write(data);
 	}
 
+/* TODO delete
 	public void readData(DataInput backingStore) throws IOException {
 		key = backingStore.readInt();
 		try {
@@ -100,7 +100,7 @@ class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 		}
 		ip.readFully(data);
 	}
-
+*/
 	@Override
 	public boolean equals(Object comparand) {
 		if (comparand.getClass() != this.getClass()) {
@@ -128,8 +128,7 @@ class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 	}
 
 	public MockFixedSizeHashEntry clone() {
-		MockFixedSizeHashEntry theClone = new MockFixedSizeHashEntry(key, data.length);
-		System.arraycopy(this.data, 0, theClone.data, 0, data.length);
+		MockFixedSizeHashEntry theClone = new MockFixedSizeHashEntry(key, data);
 		return theClone;
 	}
 
@@ -150,21 +149,4 @@ class MockFixedSizeHashEntry extends AbstractFixedSizeHashEntry {
 	public Integer getIntegerKey() {
 		return new Integer(key);
 	}
-
-	@Override
-	public int getKey() {
-		return key;
-	}
-
-	@Override
-	public void setKey(int newKey) {
-		key = newKey;
-		
-	}
-
-	@Override
-	public void setOversize(boolean oversize) {
-		this.oversize = oversize;
-	}
-
 }

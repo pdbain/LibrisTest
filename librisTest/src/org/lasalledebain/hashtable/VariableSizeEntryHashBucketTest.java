@@ -109,7 +109,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				for (int i = 0; i < numChildren; ++i) {
 					int newChild = r.nextInt(numEntries) + 1;
 					childrenAndAffiliates[0][i] = newChild;
-					newEntry.addChild(newChild);
+					newEntry = new AffiliateListEntry(newEntry, newChild, true);
 				}
 				Arrays.sort(childrenAndAffiliates[0]);
 				ng = r.nextGaussian();
@@ -118,7 +118,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				for (int i = 0; i < numAffiliates; ++i) {
 					int newAffiliate = r.nextInt(numEntries) + 1;
 					childrenAndAffiliates[1][i] = newAffiliate;
-					newEntry.addAffiliate(newAffiliate);
+					newEntry = new AffiliateListEntry(newEntry, newAffiliate, false);
 				}
 				Arrays.sort(childrenAndAffiliates[1]);
 				entries.put(key, childrenAndAffiliates);
@@ -155,12 +155,57 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 					break;
 				}
 				assertTrue("bucket add failed on key "+key, result);
-				assertEquals("Wrong occupancy on key "+key+": ", expectedOccupancy, buck.getOccupancy());
+				int actualOccupancy = buck.getOccupancy();
+				assertEquals("Wrong occupancy on key "+key+": ", expectedOccupancy, actualOccupancy);
 			}
 			assertEquals("bucket not exactly filled.  Occupancy: ", expectedOccupancy, HashBucket.getBucketSize());
 			checkEntries(buck, entryCount, entries);
 
 		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail("unexpected exception:"+e.getMessage());
+		}
+	}
+
+	@Test
+	public void testUpdate() {
+		try {
+			int expectedOccupancy = 2;
+			int initialSize = 128;
+			final int bucketSize = HashBucket.getBucketSize();
+			int totalLength = entryFactory.makeVariableSizeEntry(1, initialSize).getTotalLength();
+			final int numEntries = (bucketSize - expectedOccupancy)/totalLength;
+			VariableSizeHashEntry newEntry;
+			for (int key = 1; key <= numEntries; key++ ) {
+				newEntry = entryFactory.makeVariableSizeEntry(key, initialSize);
+				boolean result = buck.addEntry(newEntry);
+				assertTrue("unexpected overflow", result);
+			}
+			int testKey = numEntries/2;
+			byte newData[] = new byte[initialSize];
+			Arrays.fill(newData, (byte) 0x11);
+			VariableSizeHashEntry testEntry = entryFactory.makeEntry(testKey, newData);
+
+			boolean result = buck.addEntry(testEntry);
+			assertTrue("unexpected overflow", result);
+			testEntry = buck.getEntry(testKey);
+			assertTrue(Arrays.equals(newData, testEntry.getData()));
+
+			newData = new byte[2*initialSize];
+			Arrays.fill(newData, (byte) 0x22);
+			testEntry = entryFactory.makeEntry(testKey, newData);
+			result = buck.addEntry(testEntry);
+			assertFalse("missing overflow", result);	
+
+			newData = new byte[initialSize];
+			Arrays.fill(newData, (byte) 0x33);
+			testEntry = entryFactory.makeEntry(testKey, newData);
+			result = buck.addEntry(testEntry);
+			assertTrue("unexpected overflow", result);
+			testEntry = buck.getEntry(testKey);
+			assertTrue(Arrays.equals(newData, testEntry.getData()));
+
+		} catch (DatabaseException | IOException e) {
 			e.printStackTrace();
 			fail("unexpected exception:"+e.getMessage());
 		}
@@ -188,7 +233,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 		try {
 			final int numEntries = 16;
 			HashMap<Integer, VariableSizeHashEntry> entries= new HashMap<Integer, VariableSizeHashEntry>(numEntries);
-			
+
 			entryFactory.setOversizeThreshold(64);
 			int length = 2;
 			for (int key = 1; key <= numEntries; key++ ) {
@@ -209,13 +254,13 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			fail("unexpected exception:"+e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testRandomSizes() {
 		try {
 			int numEntries = 0;
 			HashMap<Integer, VariableSizeHashEntry> entries= new HashMap<Integer, VariableSizeHashEntry>(numEntries);
-			
+
 			entryFactory.setOversizeThreshold(64);
 			Random lengthGen = new Random(271828);
 			boolean addMore = true;
@@ -240,7 +285,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			fail("unexpected exception:"+e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testIterator() {
 		try {
@@ -282,7 +327,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 		try {
 			final int numEntries = 8;
 			HashMap<Integer, VariableSizeHashEntry> entries= new HashMap<Integer, VariableSizeHashEntry>(numEntries);
-			
+
 			entryFactory.setOversizeThreshold(64);
 			int length = 4;
 			for (int key = 1; key <= numEntries; key++ ) {
@@ -294,7 +339,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				length *= 2;
 			}			
 			buck.write();
-			countOversize(4);
+
 			checkEntries(buck, numEntries, entries);
 			HashBucket<VariableSizeHashEntry> newBuck = (HashBucket<VariableSizeHashEntry>) bfact.createBucket(backingStore, 0, entryFactory);
 			newBuck.read();
@@ -358,7 +403,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			fail("unexpected exception:"+e.getMessage());
 		}
 	}
-	
+
 	@Test
 	public void testResizeEntries() {
 		try {
@@ -382,7 +427,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 				tempBuck.write();
 			}
 			countOversize(numEntries - 5);
-			
+
 			{
 				HashBucket<VariableSizeHashEntry> tempBuck = (HashBucket<VariableSizeHashEntry>) bfact.createBucket(backingStore, 0, entryFactory);
 				tempBuck.read();
@@ -390,15 +435,14 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 
 				int length = 2 << numEntries;
 				for (int key = 1; key <= numEntries; key++ ) {
-					VariableSizeHashEntry oldEntry = entries.get(key);
 					byte dat[] = new byte[length];
 					for (int i = 0; i < length; ++i) {
 						dat[i] = (byte) (key ^ i);
 					}
-					oldEntry.setData(dat);
-					oldEntry.setOversize((length > 128) || (key %2) == 1);
-					entries.put(key, oldEntry);
-					boolean result = tempBuck.addEntry(oldEntry);
+					VariableSizeHashEntry newEntry = new MockVariableSizeHashEntry(key, dat);
+					newEntry.setOversize((length > 128) || (key %2) == 1);
+					entries.put(key, newEntry);
+					boolean result = tempBuck.addEntry(newEntry);
 					int occupancy = tempBuck.getOccupancy();
 					assertTrue("bucket add failed on key "+key, result);
 					length /= 2;
@@ -413,7 +457,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			fail("unexpected exception:"+e.getMessage());
 		}
 	}
-	
+
 	@Before
 	public void setUp() throws Exception {
 		if (null == testFile) {
@@ -421,7 +465,6 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 		}
 		backingStore = Util.MakeHashFile(testFile);
 		mgr = Utilities.makeFileSpaceManager(getName()+"_mgr");
-		System.out.println("oversize entries file: "+mgr.getFilePath().getAbsolutePath());
 		oversizeEntryManager = new MockOverflowManager(mgr);
 		bfact = VariableSizeEntryHashBucket.getFactory(oversizeEntryManager);
 		entryFactory = new MockVariableSizeEntryFactory();
@@ -438,7 +481,7 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 
 	private int populateBucket(final int numEntries,
 			HashMap<Integer, VariableSizeHashEntry> entries)
-			throws DatabaseException, IOException {
+					throws DatabaseException, IOException {
 		int entryCount = 0;
 		int expectedOccupancy = 2;
 		for (int key = 1; key <= numEntries; key++ ) {

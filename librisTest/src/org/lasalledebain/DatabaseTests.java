@@ -1,9 +1,13 @@
 package org.lasalledebain;
 
+import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_XML;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -13,16 +17,18 @@ import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.LibrisMetadata;
 import org.lasalledebain.libris.Record;
 import org.lasalledebain.libris.RecordTemplate;
+import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.ui.LibrisUi;
 import org.lasalledebain.libris.xmlUtils.ElementManager;
-
+import static org.lasalledebain.Utilities.checkRecords;
+import static org.lasalledebain.Utilities.testLogger;
 
 public class DatabaseTests extends TestCase {
 
 	private static final String ID_AUTH = "ID_auth";
 	private static final String ID_publisher = "ID_publisher";
 	private final static String[] authors = {"", "John le Carre", "Homer", "Louise Creighton"};
-	private File testDatabaseFileCopy;;
+	private File testDatabaseFileCopy;
 // TODO override auxiliary directory
 	public void testReadRecordsFromSingleFile() {
 		try {
@@ -89,7 +95,7 @@ public class DatabaseTests extends TestCase {
 				Record rec = db.getRecord(i);
 				Field f = rec.getField(ID_AUTH);
 				f.changeValue("new value "+i);
-				System.out.println(rec.toString());
+				testLogger.log(Level.INFO,rec.toString());
 				db.put(rec);
 			}
 			for (int i = 1; i <= NUM_RECORDS; ++i) {
@@ -114,7 +120,7 @@ public class DatabaseTests extends TestCase {
 				Record rec = db.getRecord(i);
 				rec.setName("Name_"+i);
 				rec.addFieldValue(ID_AUTH, "new value "+i);
-				System.out.println(rec.toString());
+				testLogger.log(Level.INFO,rec.toString());
 				db.put(rec);
 			}
 			for (int i = 1; i <= NUM_RECORDS; ++i) {
@@ -216,7 +222,7 @@ public class DatabaseTests extends TestCase {
 			File copyDbXml = new File (workdir, "database_copy.xml");
 			copyDbXml.deleteOnExit();
 			FileOutputStream copyStream = new FileOutputStream(copyDbXml);
-			System.out.println(getName()+": copy database to"+copyDbXml);
+			testLogger.log(Level.INFO,getName()+": copy database to"+copyDbXml);
 			db.exportDatabaseXml(copyStream, true, true);
 			copyStream.close();
 			
@@ -240,7 +246,7 @@ public class DatabaseTests extends TestCase {
 			File copyDbXml = new File (workdir, "database_copy.xml");
 			copyDbXml.deleteOnExit();
 			FileOutputStream copyStream = new FileOutputStream(copyDbXml);
-			System.out.println(getName()+": copy database to"+copyDbXml);
+			testLogger.log(Level.INFO,getName()+": copy database to"+copyDbXml);
 			db.exportDatabaseXml(copyStream, true, true);
 			copyStream.close();
 			
@@ -253,6 +259,28 @@ public class DatabaseTests extends TestCase {
 		} catch (Throwable e) {
 			e.printStackTrace();
 			fail("unexpected exception");
+		}
+	}
+
+	public void testAddRecordsToDatabase() {
+		final int numRecs = 1024;
+		String dbFile = DATABASE_WITH_GROUPS_XML;
+		try {
+			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
+			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			testLogger.log(Level.INFO, "database rebuilt");
+			int lastId = db.getLastRecordId();
+			for (int i = lastId+1; i <= numRecs; ++i) {
+				Record rec = db.newRecord();
+				int recNum = db.put(rec);
+				assertEquals("wrong ID for new record",  i, recNum);
+			}
+//			checkRecords(db, lastId);
+			db.save();
+			checkRecords(db, lastId);
+		} catch (LibrisException | IOException e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
 		}
 	}
 

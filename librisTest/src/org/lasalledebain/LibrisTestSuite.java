@@ -49,6 +49,7 @@ public class LibrisTestSuite {
 		suite.addTestSuite(TestKeyIntegerTuple.class);
 		suite.addTestSuite(TestFileRecordMap.class);
 		suite.addTestSuite(InheritanceTest.class);
+		suite.addTestSuite(DatabaseStressTests.class);
 		//$JUnit-END$
 		return suite;
 	}

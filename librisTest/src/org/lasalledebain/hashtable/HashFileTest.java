@@ -6,7 +6,10 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.junit.Test;
 import org.lasalledebain.Utilities;
@@ -25,6 +28,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import static org.lasalledebain.Utilities.compareIntLists;
+import static org.lasalledebain.Utilities.checkForDuplicates;
 
 public class HashFileTest extends TestCase {
 
@@ -32,6 +36,7 @@ public class HashFileTest extends TestCase {
 	private MockVariableSizeEntryFactory vFactory = null;
 	private MockFixedSizeEntryFactory fFactory = null;
 	private RandomAccessFile backingStore;
+	private Logger testLogger;
 
 	@Test
 	public void testAddAndGet() {
@@ -268,21 +273,32 @@ public class HashFileTest extends TestCase {
 					AffiliateListEntry newEntry = aFact.makeEntry(key);
 					double ng = r.nextGaussian();
 					int numChildren = Math.abs((int) (ng * affiliateScale));
-					childrenAndAffiliates[0] = new int[numChildren];
+					HashSet<Integer> buffer = new HashSet<Integer>(numChildren);
 					for (int i = 0; i < numChildren; ++i) {
 						int newChild = r.nextInt(numEntries) + 1;
-						childrenAndAffiliates[0][i] = newChild;
-						newEntry.addChild(newChild);
+						buffer.add(newChild);
+						newEntry = new AffiliateListEntry(newEntry, newChild, true);
+					}
+					childrenAndAffiliates[0] = new int[buffer.size()];
+					int index = 0;
+					for (int c: buffer) {
+						childrenAndAffiliates[0][index++] = c;
 					}
 					Arrays.sort(childrenAndAffiliates[0]);
+					buffer.clear();
+					
 					ng = r.nextGaussian();
 					int numAffiliates = Math.abs((int) (ng * affiliateScale));
-					childrenAndAffiliates[1] = new int[numAffiliates];
 					for (int i = 0; i < numAffiliates; ++i) {
 						int newAffiliate = r.nextInt(numEntries) + 1;
-						childrenAndAffiliates[1][i] = newAffiliate;
-						newEntry.addAffiliate(newAffiliate);
+						buffer.add(newAffiliate);
+						newEntry = new AffiliateListEntry(newEntry, newAffiliate, false);
 					}
+					childrenAndAffiliates[1] = new int[buffer.size()];
+					index = 0;
+					for (int c: buffer) {
+						childrenAndAffiliates[1][index++] = c;
+					}					
 					Arrays.sort(childrenAndAffiliates[1]);
 					entries.put(key, childrenAndAffiliates);
 					htable.addEntry(newEntry);
@@ -290,8 +306,10 @@ public class HashFileTest extends TestCase {
 				for (int key = 1; key < numEntries; key++ ) {
 					AffiliateListEntry e = htable.getEntry(key);
 					int[][] expectedData = entries.get(key);
-					compareIntLists("children", expectedData[0], e.getChildren());
-					compareIntLists("affiliates", expectedData[1], e.getAffiliates());
+					assertTrue("Duplicate children", checkForDuplicates("children", e.getChildren()));
+					assertTrue("Wrong children", compareIntLists("children", expectedData[0], e.getChildren()));
+					assertTrue("Duplicate affiliates", checkForDuplicates("affiliates", e.getAffiliates()));
+					assertTrue("Wrong affiliates", compareIntLists("affiliates", expectedData[1], e.getAffiliates()));
 				}
 
 			} catch (DatabaseException e) {
@@ -313,9 +331,9 @@ public class HashFileTest extends TestCase {
 			
 			int recordsPerBucket = HashBucket.BUCKET_SIZE/vFactory.getEntrySize();
 			int requestedBuckets = (NUM_ENTRIES*2+recordsPerBucket-1)/recordsPerBucket;
-			logln("resize hash table: "+requestedBuckets+" buckets");
+			testLogger.log(Level.INFO, "resize hash table: "+requestedBuckets+" buckets");
 			htable.resize(requestedBuckets);
-			logln("add entries");
+			testLogger.log(Level.INFO, "add entries");
 			
 			addVariableSizeEntries(htable, entries, NUM_ENTRIES, 0, true);
 			logln("check entries");
@@ -419,7 +437,9 @@ public class HashFileTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		System.out.println("\nStarting "+getName());
+		testLogger = Logger.getLogger(Utilities.LIBRIS_TEST_LOGGER);
+		testLogger.setLevel(Utilities.defaultLoggingLevel);
+		testLogger.log(Level.INFO, "\nStarting "+getName());
 		if (null == vFactory) {
 			vFactory = new MockVariableSizeEntryFactory(28);
 		}

@@ -27,7 +27,7 @@ public class HashBucketTests extends TestCase {
 		HashBucket buck = bfact.createBucket(null, 0, null);
 		ArrayList<HashEntry> entries;
 		try {
-			entries = Util.fixedSizeFillBucket(buck, (byte) 1);
+			entries = Util.fixedSizeFillBucket(buck, 42,(byte) 1);
 			Util.checkBucket(buck, entries);
 		} catch (DatabaseException e) {
 			e.printStackTrace();
@@ -44,7 +44,7 @@ public class HashBucketTests extends TestCase {
 		HashBucket writeBucket = bfact.createBucket(hashFile,0,fact);
 		ArrayList<HashEntry> entries = null;
 		try {
-			entries = Util.fixedSizeFillBucket(writeBucket, (byte) 2);
+			entries = Util.fixedSizeFillBucket(writeBucket, 10, (byte) 2);
 			writeBucket.write();
 		} catch (DatabaseException e) {
 			e.printStackTrace();

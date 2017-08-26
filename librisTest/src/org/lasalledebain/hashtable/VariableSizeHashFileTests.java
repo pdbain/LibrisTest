@@ -17,6 +17,7 @@ import org.lasalledebain.libris.hashfile.HashBucketFactory;
 import org.lasalledebain.libris.hashfile.HashFile;
 import org.lasalledebain.libris.hashfile.VariableSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
+import org.lasalledebain.libris.index.AbstractHashEntry;
 import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 import org.lasalledebain.libris.indexes.FileSpaceManager;
 
@@ -35,7 +36,7 @@ public class VariableSizeHashFileTests extends TestCase {
 			addEntries(htable, entries, 32, 0, true);
 
 			for (AbstractVariableSizeHashEntry e: entries) {
-				AbstractVariableSizeHashEntry f = htable.getEntry(e.getKey());
+				AbstractHashEntry f = htable.getEntry(e.getKey());
 				assertNotNull("Could not find entry", f);
 				assertEquals("Entry mismatch", e, f);
 			}
@@ -63,7 +64,7 @@ public class VariableSizeHashFileTests extends TestCase {
 				print(currentKey+" entries added.  Checking...\n");
 				for (AbstractVariableSizeHashEntry e: entries) {
 					int key = e.getKey();
-					AbstractVariableSizeHashEntry f = htable.getEntry(key);
+					AbstractHashEntry f = htable.getEntry(key);
 					if (null == f) {
 						print("key="+key+" not found; ");
 						print("\n");
@@ -113,6 +114,44 @@ public class VariableSizeHashFileTests extends TestCase {
 				}
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+			fail("Unexpected exception on hashfile");
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail("Unexpected exception on hashfile");
+		}
+		println("end "+getName());
+	}
+
+	@Test
+	public void testFlush() {
+		println("start "+getName());
+		try {
+	//s		efactory = new MockVariableSizeEntryFactory(4096);
+			HashFile<VariableSizeHashEntry> htable = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
+			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
+
+			int currentKey = 1;
+
+			currentKey = addVariableSizeEntries(htable, entries, 20, currentKey, 1, 1024);
+			htable.flush();
+			HashFile<VariableSizeHashEntry> htable2 = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
+			print(currentKey+" entries added.  Checking...\n");
+			for (VariableSizeHashEntry e: entries) {
+				int key = e.getKey();
+				VariableSizeHashEntry f = htable2.getEntry(key);
+				if (null == f) {
+					print("key="+key+" not found; ");
+					print("\n");
+				}
+				try {
+					assertNotNull("Could not find entry "+key, f);
+					assertEquals("Entry mismatch", e, f);
+				} catch (AssertionFailedError a) {
+					throw a;
+				}
+			}
+				} catch (IOException e) {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		} catch (DatabaseException e) {

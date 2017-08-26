@@ -3,6 +3,8 @@ package org.lasalledebain.group;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
@@ -29,6 +31,7 @@ public class GroupDefsTests extends TestCase {
 	private static final String ID_VOLUME = "ID_volume";
 	private static final String ID_PUBLISHER = "ID_publisher";
 	private static final String ID_AUTH = "ID_auth";
+	private Logger testLogger;
 
 	@Test
 	public void testFromXml() {
@@ -97,7 +100,7 @@ public class GroupDefsTests extends TestCase {
 		try {
 			File testDatabaseFileCopy = Utilities.copyTestDatabaseFile(Utilities.TEST_DB_WITH_GROUPS_XML_FILE);
 			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			System.out.println("database rebuilt");
+			testLogger.log(Level.INFO, "database rebuilt");
 			ArrayList<Record> recList = new ArrayList<Record>();
 			{
 				Record curr = db.newRecord();
@@ -184,6 +187,12 @@ public class GroupDefsTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception "+e);
 		}
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		testLogger = Logger.getLogger(Utilities.LIBRIS_TEST_LOGGER);
+		testLogger.setLevel(Utilities.defaultLoggingLevel);
 	}
 
 	private void saveRecord(LibrisDatabase db, ArrayList<Record> recList,

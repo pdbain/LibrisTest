@@ -3,13 +3,12 @@ package org.lasalledebain.group;
 
 import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_AND_RECORDS_XML;
 import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_XML;
+import static org.lasalledebain.Utilities.testLogger;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-
-import junit.framework.TestCase;
+import java.util.logging.Level;
 
 import org.junit.After;
 import org.lasalledebain.Utilities;
@@ -17,11 +16,12 @@ import org.lasalledebain.libris.Libris;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
 import org.lasalledebain.libris.RecordList;
-import org.lasalledebain.libris.exception.DatabaseException;
 import org.lasalledebain.libris.exception.FieldDataException;
 import org.lasalledebain.libris.exception.InputException;
 import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.field.FieldValue;
+
+import junit.framework.TestCase;
 
 public class InheritanceTest extends TestCase {
 	File testDatabaseFileCopy;
@@ -125,42 +125,40 @@ public class InheritanceTest extends TestCase {
 				}
 				s.add(recNum);
 			}
+			testLogger.log(Level.INFO, "Check children before save");
+			checkChildren(numRecs, expectedChildren);
 			db.save();
 		} catch (LibrisException e) {
 			e.printStackTrace();
 			fail("unexpected exception "+e.getMessage());
 		}
-		for (int i = 1; i <= numRecs; ++i) {
-			try {
-				Record r = db.getRecord(i);
-				assertEquals("Wrong record ID",  i, r.getRecordId());
-			} catch (InputException e) {
-				e.printStackTrace();
-				fail("unexpected exception "+e.getMessage());
-			}
-		}
+		Utilities.checkRecords(db, lastId);
 		try {
-			for (int i = 1; i <= numRecs; ++i) {
-				RecordList children;
-				children = db.getChildRecords(i, 0, false);
-				HashSet<Integer> childrenSet = expectedChildren.get(i);
-				if (null == childrenSet) {
-					assertNotNull("Record "+i+" has unexpected children");					
-				} else {
-					assertNotNull("Record "+i+" has no children", children);
-					int childCount = childrenSet.size();
-					for (Record r: children) {
-						int recordId = r.getRecordId();
-						assertTrue("Unexpected child "+recordId+" of record "+i, childrenSet.contains(recordId));
-						--childCount;
-					}
-					assertTrue("Too few children for "+i, 0 == childCount);
-				}
-			}
+			testLogger.log(Level.INFO, "Check children after save");
+			checkChildren(numRecs, expectedChildren);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unexpected exception: "+e.getMessage());
 		}
+	}
+
+	public void testInheritanceStressDebug() {
+		final int numRecs = 1024;
+		String dbFile = DATABASE_WITH_GROUPS_XML;
+		setupDatabase(dbFile);
+		int lastId = db.getLastRecordId();
+		try {
+			for (int i = lastId+1; i <= numRecs; ++i) {
+				Record rec = db.newRecord();
+				int recNum = db.put(rec);
+				assertEquals("wrong ID for new record",  i, recNum);
+			}
+			db.save();
+		} catch (LibrisException e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
+		}
+		Utilities.checkRecords(db, lastId);
 	}
 
 	public void testInheritanceStress() {
@@ -177,33 +175,31 @@ public class InheritanceTest extends TestCase {
 			e.printStackTrace();
 			fail("unexpected exception "+e.getMessage());
 		}
-		for (int i = 1; i <= lastId; ++i) {
-			try {
-				Record r = db.getRecord(i);
-				assertEquals("Wrong record ID",  i, r.getRecordId());
-			} catch (InputException e) {
-				e.printStackTrace();
-				fail("unexpected exception "+e.getMessage());
-			}
-		}
+		Utilities.checkRecords(db, lastId);
 		try {
-			for (int i = 1; i <= numRecs; ++i) {
-				RecordList children;
-				children = db.getChildRecords(i, 0, false);
-				HashSet<Integer> childrenSet = expectedChildren.get(i);
-				if (null == childrenSet) {
-					assertNotNull("Record "+i+" has unexpected children");					
-				} else {
-					assertNotNull("Record "+i+" has no children", children);
-					int childCount = childrenSet.size();
-					for (Record r: children) {
-						int recordId = r.getRecordId();
-						assertTrue("Unexpected child "+recordId+" of record "+i, childrenSet.contains(recordId));
-						--childCount;
-					}
-					assertTrue("Too few children for "+i, 0 == childCount);
-				}
-			}
+			checkChildren(numRecs, expectedChildren);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("unexpected exception: "+e.getMessage());
+		}
+	}
+
+	public void testInheritanceReopenSanity() {
+		final int numRecs = 16;
+		String dbFile = DATABASE_WITH_GROUPS_AND_RECORDS_XML;
+		HashMap<Integer, HashSet<Integer>> expectedChildren = new HashMap<>(numRecs);
+		setupDatabase(dbFile);
+		int lastId = db.getLastRecordId();
+		try {
+			initializeExpectedChildren(expectedChildren, lastId);
+			addChildren(numRecs, lastId, expectedChildren);
+			File builtDatabaseFile = db.getDatabaseFile();
+			db.save();
+			db.close();
+			db = Libris.openDatabase(builtDatabaseFile, null);
+			lastId = db.getLastRecordId();
+			assertEquals("database has wrong number of records",numRecs, lastId);
+			checkChildren(numRecs, expectedChildren);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unexpected exception: "+e.getMessage());
@@ -315,25 +311,11 @@ public class InheritanceTest extends TestCase {
 			fail("unexpected exception: "+e.getMessage());
 		}
 	}
-	void fetchAndCheckField(Record rec) {
-		int recId = rec.getRecordId();
-		try {
-			for (int i = 1; i <= recId; ++i) {
-				FieldValue fv;
-				fv = rec.getFieldValue(fieldNamesAndValues[i][0]);
-				assertEquals("record "+i, fieldNamesAndValues[i][1], fv.getMainValueAsString());
-			}
-		} catch (InputException e) {
-			e.printStackTrace();
-			fail("unexpected exception "+e.getMessage());
-		}
-	}
-
 	private void setupDatabase(String dbFile) {
 		try {
 			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
 			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			System.out.println("database rebuilt");
+			testLogger.log(Level.INFO, "database rebuilt");
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unexpected exception "+e.getMessage());
@@ -371,6 +353,16 @@ public class InheritanceTest extends TestCase {
 		}
 	}
 
+	// TODO PDB_DEBUG
+	private void debugaddChildren(final int numRecs, int lastId, HashMap<Integer, HashSet<Integer>> expectedChildren)
+			throws InputException, FieldDataException, LibrisException {
+		for (int i = lastId+1; i <= numRecs; ++i) {
+			Record rec = db.newRecord();
+			int recNum = db.put(rec);
+			assertEquals("wrong ID for new record",  i, recNum);
+		}
+	}
+
 	private void checkChild(int childId, final int parentId) throws InputException {
 	Record parentRec = db.getRecord(parentId);
 	boolean found = false;
@@ -384,6 +376,40 @@ public class InheritanceTest extends TestCase {
 	Record actualChild = db.getRecord(childId);
 	assertNotNull("cannot get "+childId, actualChild);
 	assertEquals("Wrong parent",  parentId, actualChild.getParent(0));
+	}
+
+	private void checkChildren(final int numRecs, HashMap<Integer, HashSet<Integer>> expectedChildren) {
+		for (int i = 1; i <= numRecs; ++i) {
+			RecordList children;
+			children = db.getChildRecords(i, 0, false);
+			HashSet<Integer> childrenSet = expectedChildren.get(i);
+			if (null == childrenSet) {
+				assertNotNull("Record "+i+" has unexpected children");					
+			} else {
+				assertNotNull("Record "+i+" has no children", children);
+				int childCount = childrenSet.size();
+				for (Record r: children) {
+					int recordId = r.getRecordId();
+					assertTrue("Unexpected child "+recordId+" of record "+i, childrenSet.contains(recordId));
+					--childCount;
+				}
+				assertTrue("Too few children for "+i, 0 == childCount);
+			}
+		}
+	}
+
+	void fetchAndCheckField(Record rec) {
+		int recId = rec.getRecordId();
+		try {
+			for (int i = 1; i <= recId; ++i) {
+				FieldValue fv;
+				fv = rec.getFieldValue(fieldNamesAndValues[i][0]);
+				assertEquals("record "+i, fieldNamesAndValues[i][1], fv.getMainValueAsString());
+			}
+		} catch (InputException e) {
+			e.printStackTrace();
+			fail("unexpected exception "+e.getMessage());
+		}
 	}
 
 	@After
