@@ -50,6 +50,7 @@ public class LibrisTestSuite {
 		suite.addTestSuite(TestFileRecordMap.class);
 		suite.addTestSuite(InheritanceTest.class);
 		suite.addTestSuite(DatabaseStressTests.class);
+		suite.addTestSuite(VariableSizeEntryHashBucketTest.class);
 		//$JUnit-END$
 		return suite;
 	}

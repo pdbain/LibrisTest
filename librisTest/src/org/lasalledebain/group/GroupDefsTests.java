@@ -1,12 +1,11 @@
 package org.lasalledebain.group;
 
+import static org.lasalledebain.Utilities.testLogger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import junit.framework.TestCase;
 
 import org.junit.Test;
 import org.lasalledebain.Utilities;
@@ -19,8 +18,9 @@ import org.lasalledebain.libris.Schema;
 import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.field.FieldValue;
 import org.lasalledebain.libris.index.GroupDef;
-import org.lasalledebain.libris.ui.HeadlessUi;
 import org.lasalledebain.libris.xmlUtils.ElementWriter;
+
+import junit.framework.TestCase;
 
 public class GroupDefsTests extends TestCase {
 
@@ -31,7 +31,6 @@ public class GroupDefsTests extends TestCase {
 	private static final String ID_VOLUME = "ID_volume";
 	private static final String ID_PUBLISHER = "ID_publisher";
 	private static final String ID_AUTH = "ID_auth";
-	private Logger testLogger;
 
 	@Test
 	public void testFromXml() {
@@ -164,7 +163,7 @@ public class GroupDefsTests extends TestCase {
 			}
 			String[] fieldIds = db.getSchema().getFieldIds();
 			for (Record r: recList) {
-				System.out.println("Record "+r.getRecordId());
+				testLogger.log(Level.INFO, "Record "+r.getRecordId());
 				int parentId = r.getParent(GRP_ONE);
 				Record parent = null;
 				if (!RecordId.isNull(parentId)) {
@@ -173,7 +172,7 @@ public class GroupDefsTests extends TestCase {
 				for (String fid: fieldIds) {
 					FieldValue val = r.getFieldValue(fid);
 					if (null != val) {
-						System.out.println(fid+": "+val.getValueAsString());
+						testLogger.log(Level.INFO, fid+": "+val.getValueAsString());
 					}
 					if ((r.getField(fid) == null) && (null != parent)) {
 						Field parentValue = parent.getField(fid);
@@ -191,8 +190,13 @@ public class GroupDefsTests extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		testLogger = Logger.getLogger(Utilities.LIBRIS_TEST_LOGGER);
-		testLogger.setLevel(Utilities.defaultLoggingLevel);
+		testLogger.log(Level.INFO, "Starting "+getName());
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		testLogger.log(Level.INFO, "Ending "+getName());
+
 	}
 
 	private void saveRecord(LibrisDatabase db, ArrayList<Record> recList,

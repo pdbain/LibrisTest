@@ -20,9 +20,10 @@ PDFTextStripper stripper;
 			PDDocument doc = PDDocument.load(pdfFile);
 			int nPages = doc.getNumberOfPages();
 			PDDocumentInformation docInfo = doc.getDocumentInformation();
-			System.out.println("author"+docInfo.getAuthor());
-			System.out.println("keywords"+docInfo.getKeywords());
-			System.out.println("subject"+docInfo.getSubject());
+			System.out.println("author: "+docInfo.getAuthor());
+			System.out.println("keywords: "+docInfo.getKeywords());
+			System.out.println("subject: "+docInfo.getSubject());
+			System.out.println("title: "+docInfo.getTitle());
 			Set<String> mdKeys = docInfo.getMetadataKeys();
 			for (String k: mdKeys) {
 				System.out.println(docInfo.getCustomMetadataValue(k));

@@ -2,6 +2,7 @@ package org.lasalledebain.libris.ui;
 
 import static org.lasalledebain.Utilities.TEST_DB4_XML_FILE;
 import static org.lasalledebain.Utilities.TEST_DB_WITH_DEFAULTS_XML_FILE;
+import static org.lasalledebain.Utilities.testLogger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +11,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import junit.framework.TestCase;
 
@@ -126,7 +128,7 @@ public class RecordEditTests extends TestCase {
 			int recId = 0;
 			Record rec;
 			{
-				 rec = gui.newRecord();
+				rec = gui.newRecord();
 				rec.setEditable(true);
 				Field fld = rec.getField(ID_AUTH);
 				fld.addValue(TEST_AUTHOR);
@@ -145,7 +147,7 @@ public class RecordEditTests extends TestCase {
 				fld.addValuePair(-1, "foobar");
 				db.put(rec);
 				db.save();
-				gui.close(true, true);
+				db.close();
 			}
 
 			{
@@ -342,7 +344,7 @@ public class RecordEditTests extends TestCase {
 			dispPanel = gui.getDisplayPanel();
 			recWindow = dispPanel.getCurrentRecordWindow();			
 			pause("Close database");
-			gui.close(true, true);
+			db.close();
 			gui.exit();
 
 
@@ -414,7 +416,7 @@ public class RecordEditTests extends TestCase {
 			resultsWindow.setSelectedRecordIndex(0);
 			int rid = resultsWindow.getSelectedRecordId();
 			gui.displaySelectedRecord();
-			out.println("selected "+rid);
+			testLogger.log(Level.INFO, "selected "+rid);
 			gui.setEditable(true);
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
@@ -564,6 +566,7 @@ public class RecordEditTests extends TestCase {
 	}
 
 	private TestGUI openGuiAndDatabase(String testName, File dbFile) {
+		@SuppressWarnings("unused")
 		LibrisDatabase db;
 		TestGUI gui = null;
 		try {
@@ -579,10 +582,12 @@ public class RecordEditTests extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		testLogger.log(Level.INFO, "Starting "+getName());
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		testLogger.log(Level.INFO, "Ending "+getName());
 		Utilities.deleteTestDatabaseFiles();
 	}
 }

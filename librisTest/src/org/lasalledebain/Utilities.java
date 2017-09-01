@@ -252,7 +252,7 @@ public class Utilities extends TestCase {
 	public static File copyTestDatabaseFile(String testDbName)
 			throws FileNotFoundException, IOException {
 		File testDatabaseFile = getTestDatabase(testDbName);
-		File testDatabaseFileCopy = new File(System.getProperty("java.io.tmpdir"), testDatabaseFile.getName());
+		File testDatabaseFileCopy = new File(getTempTestDirectory(), testDatabaseFile.getName());
 		copyFile(testDatabaseFile, testDatabaseFileCopy);
 		return testDatabaseFileCopy;
 	}

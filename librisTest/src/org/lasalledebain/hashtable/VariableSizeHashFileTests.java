@@ -1,18 +1,17 @@
 package org.lasalledebain.hashtable;
 
+import static org.lasalledebain.Utilities.testLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Random;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+import java.util.logging.Level;
 
 import org.junit.Test;
 import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.exception.DatabaseException;
-import org.lasalledebain.libris.hashfile.FixedSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.HashBucketFactory;
 import org.lasalledebain.libris.hashfile.HashFile;
 import org.lasalledebain.libris.hashfile.VariableSizeEntryHashBucket;
@@ -21,13 +20,15 @@ import org.lasalledebain.libris.index.AbstractHashEntry;
 import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 import org.lasalledebain.libris.indexes.FileSpaceManager;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
+
 public class VariableSizeHashFileTests extends TestCase {
 	private File testFileObject;
 	private MockVariableSizeEntryFactory efactory = null;
 
 	@Test
 	public void testAddAndGet() {
-		println("start "+getName());
 		try {
 			HashFile<MockVariableSizeHashEntry> htable = new HashFile<MockVariableSizeHashEntry>(backingStore, 
 					getFactory(), efactory);
@@ -47,13 +48,10 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
-
 	}
 
 	@Test
 	public void testOverflow() {
-		println("start "+getName());
 		try {
 			HashFile<MockVariableSizeHashEntry> htable = new HashFile<MockVariableSizeHashEntry>(backingStore, getFactory(), efactory);
 			ArrayList<MockVariableSizeHashEntry> entries = new ArrayList<MockVariableSizeHashEntry>();
@@ -84,12 +82,10 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
 	}
 
 	@Test
 	public void testVariableSizedEntries() {
-		println("start "+getName());
 		try {
 			HashFile<VariableSizeHashEntry> htable = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
@@ -120,12 +116,10 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
 	}
 
 	@Test
 	public void testFlush() {
-		println("start "+getName());
 		try {
 	//s		efactory = new MockVariableSizeEntryFactory(4096);
 			HashFile<VariableSizeHashEntry> htable = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
@@ -158,7 +152,6 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
 	}
 
 	@Test
@@ -211,6 +204,7 @@ public class VariableSizeHashFileTests extends TestCase {
 
 	private RandomAccessFile backingStore;
 	private FileSpaceManager mgr;
+	private StringBuffer logBuffer;
 
 	private int addEntries(HashFile<MockVariableSizeHashEntry> htable,
 			ArrayList<MockVariableSizeHashEntry> entries, int numEntries, int keyBase, boolean countUp)
@@ -232,6 +226,8 @@ public class VariableSizeHashFileTests extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
+		logBuffer = new StringBuffer();
+		testLogger.log(Level.INFO, "start "+getName());
 		if (null == efactory) {
 			efactory = new MockVariableSizeEntryFactory(28);
 		}
@@ -246,6 +242,7 @@ public class VariableSizeHashFileTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		println("end "+getName());
 		if (null != testFileObject) {
 			testFileObject.delete();
 		}
@@ -257,9 +254,11 @@ public class VariableSizeHashFileTests extends TestCase {
 	}
 
 	private void print(String msg) {
-		System.out.print(msg);
+		logBuffer.append(msg);
 	}
 	private void println(String msg) {
-		System.out.println(msg);
+		logBuffer.append(msg);
+		testLogger.log(Level.INFO, logBuffer.toString());
+		logBuffer.delete(0, logBuffer.length());
 	}
 }

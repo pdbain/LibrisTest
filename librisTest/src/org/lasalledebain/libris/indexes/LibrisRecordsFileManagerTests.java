@@ -1,6 +1,8 @@
 package org.lasalledebain.libris.indexes;
 
 
+import static org.lasalledebain.Utilities.testLogger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.logging.Level;
 
 import junit.framework.TestCase;
 
@@ -59,10 +62,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 		}
 	}
 	public void testIterator() {
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> recList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		try {
 			for (int i= 1; i <= 4; ++i) {
 				Record r = makeRandomRecord(recTemplate, i);
@@ -78,10 +80,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 	public void testRandomRecordAccess() {
 
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		final int NUM_RECORDS = 100;
 		try {
 			for (int i= 1; i <= NUM_RECORDS; ++i) {
@@ -90,7 +91,7 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 				expectedRecordList.add(r);
 			}
 			recFile.flush();
-			System.out.println("read back records");
+			testLogger.log(Level.INFO, "read back records");
 			for (int i= 1; i < NUM_RECORDS; ++i) {
 				getRecordAndCompare(recFile, expectedRecordList, i);
 			}
@@ -109,10 +110,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 	public void testGetNonexistentRecord() {
 
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		final int NUM_RECORDS = 4;
 		try {
 			for (int i= 1; i <= NUM_RECORDS; ++i) {
@@ -131,10 +131,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 	public void testReplaceRecordInPlace() {
 
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		final int NUM_RECORDS = 4;
 		try {
 			for (int i= 1; i <= NUM_RECORDS; ++i) {
@@ -170,10 +169,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 
 	public void testRandomReplaceRecordInPlace() {
 
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		final int NUM_RECORDS = 100;
 		Random selector = new Random(getName().hashCode());
 		try {
@@ -200,11 +198,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 
 	public void testReplaceRecordAtEnd() {
-
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		final int NUM_RECORDS = 100;
 		Random selector = new Random(getName().hashCode());
 		try {
@@ -230,10 +226,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 
 	public void testRemoveRecord() {
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> expectedRecordList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		try {
 			final int NUM_RECORDS = 5;
 			for (int i= 1; i <= NUM_RECORDS; ++i) {
@@ -257,10 +252,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 		}
 	}
 	public void testReopenFile() {
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> recList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		try {
 			for (int i= 1; i <= 4; ++i) {
 				Record r = makeRandomRecord(recTemplate, i);
@@ -277,10 +271,9 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 
 	public void testStandardRecord() {
-		System.out.println("starting "+getName());
 		LibrisRecordsFileManager recFile = makeRecFileMgr();
 		ArrayList<Record> recList = new ArrayList<Record>();
-		System.out.println("create records");
+		testLogger.log(Level.INFO, "create records");
 		try {
 			for (int i= 1; i <= 4; ++i) {
 				Record r = makeStandardRecord(recTemplate, i);
@@ -382,7 +375,7 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 			recPosns.close();
 			long endTime = System.currentTimeMillis();
 			double elapsedTime = 0.0 + endTime - startTime;
-			System.out.println("import time="+(elapsedTime/1000)+" seconds, "+(elapsedTime/numRecs)+" ms/record");
+			testLogger.log(Level.INFO, "import time="+(elapsedTime/1000)+" seconds, "+(elapsedTime/numRecs)+" ms/record");
 			LibrisRecordsFileManager recMgr = new LibrisRecordsFileManager(testDb, false, schem, 
 					testRecordsFile, recPosns);
 			readAndCompareRecords(recMgr, recList, false);
@@ -394,7 +387,7 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 
 	private void readAndCompareRecords(LibrisRecordsFileManager recFile,
 			ArrayList<Record> expectedRecords, boolean verbose) {
-		System.out.println("read back records");
+		testLogger.log(Level.INFO, "read back records");
 		for (Record er: expectedRecords) {
 			if (null == er) continue;
 			int rid = er.getRecordId();
@@ -408,8 +401,8 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 					fail("could not read record");
 				}
 				if (verbose) {
-					System.out.println("Expected record:\n"+er);
-					System.out.println("Actual record:\n"+ar);
+					testLogger.log(Level.INFO, "Expected record:\n"+er);
+					testLogger.log(Level.INFO, "Actual record:\n"+ar);
 				}
 				assertEquals("record read != original", er, ar);
 			} catch (InputException e) {
@@ -422,6 +415,7 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 	}
 	@Before
 	public void setUp() throws Exception {
+		testLogger.log(Level.INFO, "Starting "+getName());
 		workDir = Utilities.getTempTestDirectory();
 		testDatabaseFile = Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE);
 		if (null == workDir) {
@@ -436,11 +430,11 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 		if (null ==recTemplate) {
 			recTemplate = makeRecordTemplate(schem);
 		}
-		System.out.println("-------------------------------------\n"+getName());
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		testLogger.log(Level.INFO, "Ending "+getName());
 		Utilities.deleteRecursively(workDir);
 	}
 

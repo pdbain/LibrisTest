@@ -17,7 +17,7 @@ public class LibrisRecordMapTest extends TestCase {
 	private File workDir;
 	private String recordNames[];
 
-	public void testBuildIndex() { // TODO restore test
+	public void testBuildIndex() {
 		try {
 			File testDatabaseFile = Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE);
 			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFile);

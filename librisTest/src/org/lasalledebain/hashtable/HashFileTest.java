@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 import org.lasalledebain.Utilities;
+import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.exception.DatabaseException;
 import org.lasalledebain.libris.hashfile.FixedSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.FixedSizeHashEntry;
@@ -36,16 +37,15 @@ public class HashFileTest extends TestCase {
 	private MockVariableSizeEntryFactory vFactory = null;
 	private MockFixedSizeEntryFactory fFactory = null;
 	private RandomAccessFile backingStore;
-	private Logger testLogger;
 
 	@Test
 	public void testAddAndGet() {
 		try {
 			HashFile<VariableSizeHashEntry> htable = makeVHashTable();
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
-			
+
 			addVariableSizeEntries(htable, entries, 32, 0, true);
-			
+
 			for (VariableSizeHashEntry e: entries) {
 				VariableSizeHashEntry f = htable.getEntry(e.getKey());
 				assertNotNull("Could not find entry", f);
@@ -65,18 +65,18 @@ public class HashFileTest extends TestCase {
 		try {
 			HashFile<VariableSizeHashEntry> htable = makeVHashTable();
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
-			
+
 			int currentKey = 1;
 			while (currentKey < 1000) {
 				currentKey = addVariableSizeEntries(htable, entries, 127, currentKey, true);
-				log(currentKey+" entries added.  Checking...\n");
+				LibrisDatabase.log(Level.INFO, currentKey+" entries added.  Checking...\n");
 				for (VariableSizeHashEntry e: entries) {
 					int key = e.getKey();
 					VariableSizeHashEntry f = htable.getEntry(key);
 					if (null == f) {
-						log("key="+key+" not found; ");
+						LibrisDatabase.log(Level.INFO, "key="+key+" not found; ");
 						printHashBuckets(key);
-						log("\n");
+						LibrisDatabase.log(Level.INFO, "\n");
 					}
 					try {
 						assertNotNull("Could not find entry "+key, f);
@@ -101,21 +101,21 @@ public class HashFileTest extends TestCase {
 		try {
 			HashFile<VariableSizeHashEntry> htable = makeVHashTable();
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
-			
-			log("add first batch of entries\n");
+
+			LibrisDatabase.log(Level.INFO, "add first batch of entries\n");
 			int lastKey = addVariableSizeEntries(htable, entries, 400, 10, true);
-			log("Expand hash file\n");
+			LibrisDatabase.log(Level.INFO, "Expand hash file\n");
 			htable.resize(1000);
-			
-			log("Check file\n");
+
+			LibrisDatabase.log(Level.INFO, "Check file\n");
 			for (VariableSizeHashEntry e: entries) {
 				searchKey = e.getKey();
 				VariableSizeHashEntry f = htable.getEntry(searchKey);
 				assertNotNull("Coud not find entry "+e.getKey(), f);
 			}
-			log("add second batch of entries\n");
+			LibrisDatabase.log(Level.INFO, "add second batch of entries\n");
 			addVariableSizeEntries(htable, entries, 400, lastKey, true);
-			log("Check file again\n");
+			LibrisDatabase.log(Level.INFO, "Check file again\n");
 			for (VariableSizeHashEntry e: entries) {
 				searchKey = e.getKey();
 				VariableSizeHashEntry f = htable.getEntry(searchKey);
@@ -161,7 +161,7 @@ public class HashFileTest extends TestCase {
 
 			int nextKey = addVariableSizeEntries(htable, entries, 400, 1, true);
 			for (VariableSizeHashEntry e: entries) {
-				
+
 				byte oldData[] = e.getData();
 				for (int i=0;i<oldData.length;++i) {
 					oldData[i] += i;
@@ -187,9 +187,9 @@ public class HashFileTest extends TestCase {
 		try {
 			HashFile<VariableSizeHashEntry> htable = makeVHashTable();
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
-			
+
 			addVariableSizeEntries(htable, entries, 1000, 0, false);
-			
+
 			for (VariableSizeHashEntry e: entries) {
 				VariableSizeHashEntry f = htable.getEntry(e.getKey());
 				assertNotNull("Coud not find entry", f);
@@ -216,7 +216,7 @@ public class HashFileTest extends TestCase {
 				htable.addEntry(me);
 				entries.add(me);
 			}
-						
+
 			htable.flush();
 			for (VariableSizeHashEntry e: entries) {
 				VariableSizeHashEntry f = htable.getEntry(e.getKey());
@@ -231,7 +231,7 @@ public class HashFileTest extends TestCase {
 			fail("Unexpected exception on hashfile");
 		}
 	}
-	
+
 	public void testNumEntries() {
 		try {
 			HashFile<FixedSizeHashEntry> htable = new HashFile<FixedSizeHashEntry>(backingStore, FixedSizeEntryHashBucket.getFactory(), fFactory);
@@ -254,7 +254,7 @@ public class HashFileTest extends TestCase {
 			fail("Unexpected exception on hashfile");
 		}
 	}
-	
+
 	public void testAffiliates() {
 		try {
 			FileSpaceManager mgr = Utilities.makeFileSpaceManager(getName()+"_mgr");
@@ -286,7 +286,7 @@ public class HashFileTest extends TestCase {
 					}
 					Arrays.sort(childrenAndAffiliates[0]);
 					buffer.clear();
-					
+
 					ng = r.nextGaussian();
 					int numAffiliates = Math.abs((int) (ng * affiliateScale));
 					for (int i = 0; i < numAffiliates; ++i) {
@@ -328,26 +328,21 @@ public class HashFileTest extends TestCase {
 			final int NUM_ENTRIES=100000;
 			HashFile<VariableSizeHashEntry> htable = makeVHashTable();
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
-			
+
 			int recordsPerBucket = HashBucket.BUCKET_SIZE/vFactory.getEntrySize();
 			int requestedBuckets = (NUM_ENTRIES*2+recordsPerBucket-1)/recordsPerBucket;
-			testLogger.log(Level.INFO, "resize hash table: "+requestedBuckets+" buckets");
+			LibrisDatabase.log(Level.INFO,  "resize hash table: "+requestedBuckets+" buckets");
 			htable.resize(requestedBuckets);
-			testLogger.log(Level.INFO, "add entries");
-			
+			LibrisDatabase.log(Level.INFO,  "add entries");
+
 			addVariableSizeEntries(htable, entries, NUM_ENTRIES, 0, true);
-			logln("check entries");
-			
-			int i = 0;
-			int modulus = Math.max(1, entries.size()/64);
+			LibrisDatabase.log(Level.INFO, "check entries");
+
 			for (VariableSizeHashEntry e: entries) {
 				VariableSizeHashEntry f = htable.getEntry(e.getKey());
-				if ((i > 0) && (i%modulus == 0)) {
-					log("<");
-				}
-				++i;
 				assertNotNull("Coud not find entry", f);
 			}
+			LibrisDatabase.log(Level.INFO, "checkED entries");
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
@@ -355,15 +350,6 @@ public class HashFileTest extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-	}
-
-
-	private void logln(String msg) {
-		System.out.println(msg);
-	}
-
-	private void log(String msg) {
-		System.out.print(msg);
 	}
 
 	/**
@@ -377,39 +363,33 @@ public class HashFileTest extends TestCase {
 	 */
 	private int addVariableSizeEntries(HashFile<VariableSizeHashEntry> htable,
 			ArrayList<VariableSizeHashEntry> entries, int numEntries, int keyBase, boolean countUp)
-			throws IOException, DatabaseException {
-		int modulus = Math.max(1, numEntries/64);
-	
+					throws IOException, DatabaseException {
+
+		LibrisDatabase.log(Level.INFO, "Add "+numEntries);
 		for (int i=0; i<numEntries; i++) {
 			MockVariableSizeHashEntry e = vFactory.makeEntry(countUp? (keyBase+i):(keyBase+numEntries-i));
 			htable.addEntry(e);
 			entries.add(e);
-			if ((i > 0) && (i%modulus == 0)) {
-				log(">");
-			}
 		}
 		htable.flush();
-		log("\n"+numEntries+" added\n");
-	
+		LibrisDatabase.log(Level.INFO, numEntries+" added");
+
 		return keyBase+numEntries;
 	}
 
 	private int addFixedSizeEntries(HashFile<FixedSizeHashEntry> htable,
 			ArrayList<FixedSizeHashEntry> entries, int numEntries, int keyBase, boolean countUp)
-			throws IOException, DatabaseException {
-		int modulus = Math.max(1, numEntries/64);
-	
+					throws IOException, DatabaseException {
+
+		LibrisDatabase.log(Level.INFO, "Add "+numEntries);
 		for (int i=0; i<numEntries; i++) {
 			MockFixedSizeHashEntry e = fFactory.makeEntry(countUp? (keyBase+i):(keyBase+numEntries-i));
 			htable.addEntry(e);
 			entries.add(e);
-			if ((i > 0) && (i%modulus == 0)) {
-				log(">");
-			}
 		}
 		htable.flush();
-		log("\n"+numEntries+" added\n");
-	
+		LibrisDatabase.log(Level.INFO, numEntries+" added");
+
 		return keyBase+numEntries;
 	}
 
@@ -418,7 +398,7 @@ public class HashFileTest extends TestCase {
 		MockOverflowManager oversizeEntryManager = new MockOverflowManager(mgr);
 		HashFile<VariableSizeHashEntry> htable = 
 				new HashFile<VariableSizeHashEntry>(backingStore, 
-				VariableSizeEntryHashBucket.getFactory(oversizeEntryManager), vFactory);
+						VariableSizeEntryHashBucket.getFactory(oversizeEntryManager), vFactory);
 		return htable;
 	}
 
@@ -432,14 +412,12 @@ public class HashFileTest extends TestCase {
 			if (homeBucket >= i) {
 				homeBucket -= i;
 			}
-			log("modulus="+i+" bucket="+homeBucket+"; ");
+			LibrisDatabase.log(Level.INFO, "modulus="+i+" bucket="+homeBucket+"; ");
 		}
 	}
 
 	protected void setUp() throws Exception {
-		testLogger = Logger.getLogger(Utilities.LIBRIS_TEST_LOGGER);
-		testLogger.setLevel(Utilities.defaultLoggingLevel);
-		testLogger.log(Level.INFO, "\nStarting "+getName());
+		LibrisDatabase.log(Level.INFO, "\nStarting "+getName());
 		if (null == vFactory) {
 			vFactory = new MockVariableSizeEntryFactory(28);
 		}
