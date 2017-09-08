@@ -1,12 +1,10 @@
 package org.lasalledebain.hashtable;
 
-import static org.junit.Assert.fail;
-
 import java.io.DataInput;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import org.lasalledebain.libris.hashfile.HashEntry;
 import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
@@ -14,34 +12,38 @@ import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 
 class MockVariableSizeHashEntry extends AbstractVariableSizeHashEntry implements VariableSizeHashEntry {
 
-	byte data[];
+	final byte data[];
 	/**
 	 * @param key
 	 * @param length total length, including overhead and key
+	 * @param dat bye value with which to populate the array 
 	 */
-	public MockVariableSizeHashEntry(int key, int length) {
-		this.key = key;
+	public MockVariableSizeHashEntry(int key, int length, byte dat) {
+		super(key);
 		data = new byte[length];
+		for (int i = 0; i < data.length; ++i) {
+			data[i] = (byte) ((key * (dat+1+i))%256);
+		}
 	}
 
-	public MockVariableSizeHashEntry(int key, int length, byte initialData) {
-		this(key, length);
-		for (int i = 0; i < data.length; ++i) {
-			data[i] = (byte) ((key * (initialData+1+i))%256);
-		}
+	public MockVariableSizeHashEntry(int key, byte[] dat) {
+		super(key);
+		data = Arrays.copyOf(dat, dat.length);
 	}
-	public MockVariableSizeHashEntry(int length) {
-		if (length > 0) {
-			data = new byte[length];
-		}
+
+	public MockVariableSizeHashEntry(DataInput backingStore) throws IOException {
+		super(0);
+		throw new IOException("Not supported");
 	}
-	
+
+	public MockVariableSizeHashEntry(int key, ByteBuffer src, int len) {
+		super(key);
+		data = new byte[len];
+		src.get(data);
+	}
+
 	public byte[] getData() {
 		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
 	}
 
 	@Override
@@ -76,29 +78,6 @@ class MockVariableSizeHashEntry extends AbstractVariableSizeHashEntry implements
 		backingStore.write(data);
 	}
 
-	public void readData(DataInput backingStore) throws IOException {
-		key = backingStore.readInt();
-		try {
-			backingStore.readFully(data);
-		} catch (EOFException e) {
-			fail("unexpected end of file");
-		}
-	}
-
-	public void readData(ByteBuffer buff, int length) {
-		if (null == data) {
-			data = new byte[length];
-		}
-		buff.get(data, 0, length);
-	}
-
-	public void readData(DataInput ip, int length) throws IOException {
-		if (null == data) {
-			data = new byte[length];
-		}
-		ip.readFully(data);
-	}
-
 	@Override
 	public boolean equals(Object comparand) {
 		if (comparand.getClass() != this.getClass()) {
@@ -113,8 +92,7 @@ class MockVariableSizeHashEntry extends AbstractVariableSizeHashEntry implements
 	}
 
 	public VariableSizeHashEntry clone() {
-		MockVariableSizeHashEntry theClone = new MockVariableSizeHashEntry(key, data.length);
-		System.arraycopy(this.data, 0, theClone.data, 0, data.length);
+		MockVariableSizeHashEntry theClone = new MockVariableSizeHashEntry(key, data);
 		return theClone;
 	}
 

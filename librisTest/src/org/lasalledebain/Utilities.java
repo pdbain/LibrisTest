@@ -252,7 +252,7 @@ public class Utilities extends TestCase {
 	public static File copyTestDatabaseFile(String testDbName)
 			throws FileNotFoundException, IOException {
 		File testDatabaseFile = getTestDatabase(testDbName);
-		File testDatabaseFileCopy = new File(System.getProperty("java.io.tmpdir"), testDatabaseFile.getName());
+		File testDatabaseFileCopy = new File(getTempTestDirectory(), testDatabaseFile.getName());
 		copyFile(testDatabaseFile, testDatabaseFileCopy);
 		return testDatabaseFileCopy;
 	}
@@ -351,7 +351,7 @@ public class Utilities extends TestCase {
 		return RecordId.toString(recData.getRecordId());
 	}
 	
-	static final Logger testLogger;
+	public static final Logger testLogger;
 	static {
 		testLogger = Logger.getLogger("org.lasalledebain.test");
 		testLogger.setLevel(Boolean.getBoolean("org.lasalledebain.test.verbose")? Level.ALL: Level.WARNING);
@@ -381,13 +381,46 @@ public class Utilities extends TestCase {
 		return db;
 	}
 
-	public static void compareIntLists(String dType, int[] expectedData, int[] actualData) {
-		if (!Arrays.equals(expectedData, actualData)) {
-			System.err.print("Expected "+dType+": ");
-			for (int i: expectedData) System.err.print(i+" ");
-			System.err.print("Actual "+dType+": ");
-			for (int i: actualData) System.err.print(i+" ");
+	public static boolean compareIntLists(String dType, int[] expectedData, int[] actualData) {
+		int sed[] = Arrays.copyOf(expectedData, expectedData.length);
+		int sad[] = Arrays.copyOf(actualData, actualData.length);
+		Arrays.sort(sed);
+		Arrays.sort(sad);
+		if (!Arrays.equals(sed, sad)) {
+			System.err.print("\nExpected:\n"+dType+": ");
+			for (int i: sed) System.err.print(i+" ");
+			System.err.print("\nActual:\n"+dType+": ");
+			for (int i: sad) System.err.print(i+" ");
 			System.err.print("\n");
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean checkForDuplicates(String dType, int[] actualData) {
+		int sad[] = Arrays.copyOf(actualData, actualData.length);
+		Arrays.sort(sad);
+		for (int i = 0; i < sad.length - 1; ++i) {
+			if (sad[i] == sad[i+1]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static final String LIBRIS_TEST_LOGGER = "org.lasalledebain.LibrisTest";
+	public static Level defaultLoggingLevel = Level.WARNING;
+
+	public static void checkRecords(LibrisDatabase database, int lastId) {
+		for (int i = 1; i <= lastId; ++i) {
+			try {
+				Record r = database.getRecord(i);
+				assertNotNull("Cannot find record "+i, r);
+				assertEquals("Wrong record ID",  i, r.getRecordId());
+			} catch (InputException e) {
+				e.printStackTrace();
+				fail("unexpected exception "+e.getMessage());
+			}
 		}
 	}
 

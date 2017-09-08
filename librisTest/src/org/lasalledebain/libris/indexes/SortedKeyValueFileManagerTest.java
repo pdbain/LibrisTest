@@ -41,9 +41,6 @@ public class SortedKeyValueFileManagerTest extends TestCase {
 		}
 		FileAccessManager dataManager = new FileAccessManager(workDir, "data");
 		System.out.println(dataManager.getPath());
-		if (null == dataManager) {
-			fail("could not create dataManager");
-		}
 		fileList.add(dataManager);
 		for (int i = 1; i <= indexLevels; ++i) {
 			FileAccessManager indexManager = new FileAccessManager(workDir, "index_"+i);

@@ -26,20 +26,26 @@ public class RecordListTests extends TestCase {
 	private static final String EXTRA_DATA = "extra data";
 	private static final String ID_AUTH = "ID_auth";
 	private static final String[] expectedIds = {"1", "2", "3", "4"};
+	private LibrisDatabase testDb;
 
 	@Before
 	public void setUp() throws Exception {
+		Utilities.deleteTestDatabaseFiles();
+		testDb = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		if (null != testDb) {
+			testDb.close();
+		}
 		Utilities.deleteTestDatabaseFiles();
 	}
 
 	public void testDatabaseRecordList () {
 		try {
-			LibrisDatabase database = Libris.buildAndOpenDatabase(Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE));
-			RecordList list = database.getRecords();
+			testDb = Libris.buildAndOpenDatabase(Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE));
+			RecordList list = testDb.getRecords();
 			int recordCount = 0;
 			for (Record r: list) {
 				String id = getRecordIdString(r);
@@ -58,8 +64,8 @@ public class RecordListTests extends TestCase {
 
 	public void testModifiedList () {
 		try {
-			LibrisDatabase database = Libris.buildAndOpenDatabase(Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE));
-			RecordList list = database.getRecords();
+			testDb = Libris.buildAndOpenDatabase(Utilities.getTestDatabase(Utilities.TEST_DB1_XML_FILE));
+			RecordList list = testDb.getRecords();
 			ModifiedRecordList modList = new ModifiedRecordList();
 			ArrayList<Record> foundRecords = new ArrayList<Record>();
 
@@ -89,14 +95,15 @@ public class RecordListTests extends TestCase {
 		File testDatabaseFileCopy;
 		try {
 			testDatabaseFileCopy = Utilities.copyTestDatabaseFile();
-			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			final LibrisUi myUi = db.getUi();
-			Record rec = db.newRecord();
+			testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			final LibrisUi myUi = testDb.getUi();
+			Record rec = testDb.newRecord();
 			rec.addFieldValue(ID_AUTH, "new record");
-			int id = db.put(rec);
-			db.save();
-			db = myUi.openDatabase();
-			Record newRec = db.getRecord(id);
+			int id = testDb.put(rec);
+			testDb.save();
+			testDb.close();
+			testDb = myUi.openDatabase();
+			Record newRec = testDb.getRecord(id);
 			assertEquals("New record does not match original", rec, newRec);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,17 +116,17 @@ public class RecordListTests extends TestCase {
 		File testDatabaseFileCopy;
 		try {
 			testDatabaseFileCopy = Utilities.copyTestDatabaseFile();
-			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			final LibrisUi myUi = db.getUi();
-			Record rec = db.newRecord();
+			testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			final LibrisUi myUi = testDb.getUi();
+			Record rec = testDb.newRecord();
 			rec.addFieldValue(ID_AUTH, "new record");
-			db.put(rec);
-			db.save();
-			db.save();
-			db.save();
-			db.close();
-			db = myUi.openDatabase();
-			RecordList list = db.getRecords();
+			testDb.put(rec);
+			testDb.save();
+			testDb.save();
+			testDb.save();
+			testDb.close();
+			testDb = myUi.openDatabase();
+			RecordList list = testDb.getRecords();
 			int recordCount = 0;
 			for (@SuppressWarnings("unused") Record r: list) {
 				recordCount++;
@@ -142,21 +149,22 @@ public class RecordListTests extends TestCase {
 		File testDatabaseFileCopy;
 		try {
 			testDatabaseFileCopy = Utilities.copyTestDatabaseFile();
-			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			final LibrisUi myUi = db.getUi();
+			testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			testDb.close();
+			final LibrisUi myUi = testDb.getUi();
 			for (int r=1; r <= expectedIds.length; ++r) {
 				int oldId = r;
-				db = myUi.openDatabase();
-				Record rec = db.getRecord(oldId);
+				testDb = myUi.openDatabase();
+				Record rec = testDb.getRecord(oldId);
 				rec.addFieldValue("ID_title", ((r % 2) == 0)? shortValue: longvalue);
-				int newId = db.put(rec);
+				int newId = testDb.put(rec);
 				assertEquals("new ID != oldId", newId, oldId);
-				db.save();
-				db.close();
-				db = myUi.openDatabase();
-				Record newRec = db.getRecord(newId);
+				testDb.save();
+				testDb.close();
+				testDb = myUi.openDatabase();
+				Record newRec = testDb.getRecord(newId);
 				assertEquals("New record does not match original", rec, newRec);
-				db.close();
+				testDb.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -170,26 +178,27 @@ public class RecordListTests extends TestCase {
 		String expectedData[] = {null, "record1", "record2", "record3", "record4"};
 		try {
 			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbName);
-			LibrisDatabase db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			 testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
 
-			checkRecordOrder(db, expectedData);
+			checkRecordOrder(testDb, expectedData);
 
-			Record r = db.getRecord(3);
+			Record r = testDb.getRecord(3);
 			Field f = r.getField(ID_AUTH);
 			f.addValue(EXTRA_DATA);
 			expectedData[3] += ", "+EXTRA_DATA;
-			db.put(r);
-			db.save();
-			db.close();
+			testDb.put(r);
+			testDb.save();
+			testDb.close();
 			
 			HeadlessUi ui = new HeadlessUi(testDatabaseFileCopy);
-			db = new LibrisDatabase(testDatabaseFileCopy, null, ui, false);
-			db.open();
-			checkRecordOrder(db, expectedData);
+			testDb = new LibrisDatabase(testDatabaseFileCopy, null, ui, false);
+			testDb.open();
+			checkRecordOrder(testDb, expectedData);
 			
-			db.exportDatabaseXml(new FileOutputStream(testDatabaseFileCopy), true, true);
-			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-			checkRecordOrder(db, expectedData);
+			testDb.exportDatabaseXml(new FileOutputStream(testDatabaseFileCopy), true, true);
+			testDb.close();
+			testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+			checkRecordOrder(testDb, expectedData);
 			/*
 			 * load database with unordered records
 			 * read records and check that they are in order

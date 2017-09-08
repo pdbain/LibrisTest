@@ -1,6 +1,8 @@
 package org.lasalledebain.libris.indexes;
 
 
+import static org.lasalledebain.Utilities.testLogger;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.logging.Level;
 
 import junit.framework.TestCase;
 
@@ -56,7 +59,8 @@ public class FileSpaceManagerTests extends TestCase {
 					addEntry(entrySize, mgr, dataGen, id);
 					addedEntries.add(new Integer(id));
 				}
-				System.out.println(getName()+": round "+round+" file size = "+mgr.getFileSize());
+
+				testLogger.log(Level.INFO, getName()+": round "+round+" file size = "+mgr.getFileSize());
 				mgr.flush();
 				for (RecordHeader r: mgr) {
 					short id = r.getInput().readShort();

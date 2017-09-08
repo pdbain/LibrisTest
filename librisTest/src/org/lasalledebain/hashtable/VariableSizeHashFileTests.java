@@ -1,24 +1,27 @@
 package org.lasalledebain.hashtable;
 
+import static org.lasalledebain.Utilities.testLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Random;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+import java.util.logging.Level;
 
 import org.junit.Test;
 import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.exception.DatabaseException;
-import org.lasalledebain.libris.hashfile.FixedSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.HashBucketFactory;
 import org.lasalledebain.libris.hashfile.HashFile;
 import org.lasalledebain.libris.hashfile.VariableSizeEntryHashBucket;
 import org.lasalledebain.libris.hashfile.VariableSizeHashEntry;
+import org.lasalledebain.libris.index.AbstractHashEntry;
 import org.lasalledebain.libris.index.AbstractVariableSizeHashEntry;
 import org.lasalledebain.libris.indexes.FileSpaceManager;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 
 public class VariableSizeHashFileTests extends TestCase {
 	private File testFileObject;
@@ -26,7 +29,6 @@ public class VariableSizeHashFileTests extends TestCase {
 
 	@Test
 	public void testAddAndGet() {
-		println("start "+getName());
 		try {
 			HashFile<MockVariableSizeHashEntry> htable = new HashFile<MockVariableSizeHashEntry>(backingStore, 
 					getFactory(), efactory);
@@ -35,7 +37,7 @@ public class VariableSizeHashFileTests extends TestCase {
 			addEntries(htable, entries, 32, 0, true);
 
 			for (AbstractVariableSizeHashEntry e: entries) {
-				AbstractVariableSizeHashEntry f = htable.getEntry(e.getKey());
+				AbstractHashEntry f = htable.getEntry(e.getKey());
 				assertNotNull("Could not find entry", f);
 				assertEquals("Entry mismatch", e, f);
 			}
@@ -46,13 +48,10 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
-
 	}
 
 	@Test
 	public void testOverflow() {
-		println("start "+getName());
 		try {
 			HashFile<MockVariableSizeHashEntry> htable = new HashFile<MockVariableSizeHashEntry>(backingStore, getFactory(), efactory);
 			ArrayList<MockVariableSizeHashEntry> entries = new ArrayList<MockVariableSizeHashEntry>();
@@ -63,7 +62,7 @@ public class VariableSizeHashFileTests extends TestCase {
 				print(currentKey+" entries added.  Checking...\n");
 				for (AbstractVariableSizeHashEntry e: entries) {
 					int key = e.getKey();
-					AbstractVariableSizeHashEntry f = htable.getEntry(key);
+					AbstractHashEntry f = htable.getEntry(key);
 					if (null == f) {
 						print("key="+key+" not found; ");
 						print("\n");
@@ -83,12 +82,10 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
 	}
 
 	@Test
 	public void testVariableSizedEntries() {
-		println("start "+getName());
 		try {
 			HashFile<VariableSizeHashEntry> htable = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
 			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
@@ -119,7 +116,42 @@ public class VariableSizeHashFileTests extends TestCase {
 			e.printStackTrace();
 			fail("Unexpected exception on hashfile");
 		}
-		println("end "+getName());
+	}
+
+	@Test
+	public void testFlush() {
+		try {
+	//s		efactory = new MockVariableSizeEntryFactory(4096);
+			HashFile<VariableSizeHashEntry> htable = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
+			ArrayList<VariableSizeHashEntry> entries = new ArrayList<VariableSizeHashEntry>();
+
+			int currentKey = 1;
+
+			currentKey = addVariableSizeEntries(htable, entries, 20, currentKey, 1, 1024);
+			htable.flush();
+			HashFile<VariableSizeHashEntry> htable2 = new HashFile<VariableSizeHashEntry>(backingStore, getFactory(), efactory);
+			print(currentKey+" entries added.  Checking...\n");
+			for (VariableSizeHashEntry e: entries) {
+				int key = e.getKey();
+				VariableSizeHashEntry f = htable2.getEntry(key);
+				if (null == f) {
+					print("key="+key+" not found; ");
+					print("\n");
+				}
+				try {
+					assertNotNull("Could not find entry "+key, f);
+					assertEquals("Entry mismatch", e, f);
+				} catch (AssertionFailedError a) {
+					throw a;
+				}
+			}
+				} catch (IOException e) {
+			e.printStackTrace();
+			fail("Unexpected exception on hashfile");
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			fail("Unexpected exception on hashfile");
+		}
 	}
 
 	@Test
@@ -172,6 +204,7 @@ public class VariableSizeHashFileTests extends TestCase {
 
 	private RandomAccessFile backingStore;
 	private FileSpaceManager mgr;
+	private StringBuffer logBuffer;
 
 	private int addEntries(HashFile<MockVariableSizeHashEntry> htable,
 			ArrayList<MockVariableSizeHashEntry> entries, int numEntries, int keyBase, boolean countUp)
@@ -193,6 +226,8 @@ public class VariableSizeHashFileTests extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
+		logBuffer = new StringBuffer();
+		testLogger.log(Level.INFO, "start "+getName());
 		if (null == efactory) {
 			efactory = new MockVariableSizeEntryFactory(28);
 		}
@@ -207,6 +242,7 @@ public class VariableSizeHashFileTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		println("end "+getName());
 		if (null != testFileObject) {
 			testFileObject.delete();
 		}
@@ -218,9 +254,11 @@ public class VariableSizeHashFileTests extends TestCase {
 	}
 
 	private void print(String msg) {
-		System.out.print(msg);
+		logBuffer.append(msg);
 	}
 	private void println(String msg) {
-		System.out.println(msg);
+		logBuffer.append(msg);
+		testLogger.log(Level.INFO, logBuffer.toString());
+		logBuffer.delete(0, logBuffer.length());
 	}
 }

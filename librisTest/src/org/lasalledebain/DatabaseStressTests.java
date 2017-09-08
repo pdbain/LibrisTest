@@ -6,18 +6,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-
-import junit.framework.TestCase;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.lasalledebain.libris.Libris;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.Record;
-import org.lasalledebain.libris.RecordId;
 import org.lasalledebain.libris.exception.LibrisException;
+
+import junit.framework.TestCase;
 
 public class DatabaseStressTests extends TestCase {
 	static final int NUM_RECORDS = Integer.getInteger("org.lasalledebain.test.numrecords", 4000);
 	PrintStream out = System.out;
+	private Logger testLogger;
 
 	public void testHugeDatabase() {
 		try {
@@ -25,7 +27,7 @@ public class DatabaseStressTests extends TestCase {
 			ArrayList<Record> expectedRecords = new ArrayList<Record>(NUM_RECORDS);
 			expectedRecords.add(null);
 
-			System.out.println("add records");
+			testLogger.log(Level.INFO, "add records");
 			long startTime = System.currentTimeMillis();
 			for (int i = 1; i <= NUM_RECORDS; ++i) {
 				Record rec = db.newRecord();
@@ -41,7 +43,7 @@ public class DatabaseStressTests extends TestCase {
 				}
 			}
 			long endTime = System.currentTimeMillis();
-			out.println("time to add: "+(endTime-startTime)/1000.0+" seconds\nCheck");
+			testLogger.log(Level.INFO, "time to add: "+(endTime-startTime)/1000.0+" seconds\nCheck");
 			for (int i = 1; i <= NUM_RECORDS; ++i) {
 				Record actual = db.getRecord(i);
 				Record expected = expectedRecords.get(i);
@@ -69,8 +71,14 @@ public class DatabaseStressTests extends TestCase {
 			e.printStackTrace();
 			fail("could not open database:"+e.getMessage());
 		}
-		System.out.println("database rebuilt");
+		testLogger.log(Level.INFO, "database rebuilt");
 		return db;
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		testLogger = Logger.getLogger(Utilities.LIBRIS_TEST_LOGGER);
+		testLogger.setLevel(Utilities.defaultLoggingLevel);
 	}
 
 }
