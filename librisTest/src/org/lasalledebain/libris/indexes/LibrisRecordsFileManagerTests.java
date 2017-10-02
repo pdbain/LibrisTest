@@ -448,7 +448,7 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 				String tname = t.name();
 				String fieldTitle = "name_"+tname;
 				String fieldId = "id_"+tname;
-				FieldTemplate f = new FieldTemplate(fieldId, fieldTitle, t);
+				FieldTemplate f = new FieldTemplate(new MockSchema(), fieldId, fieldTitle, t);
 				s.addField(f);
 				if (t == FieldType.T_FIELD_ENUM) {
 					String[] ec = new String[NUM_ENUM_CHOICES];

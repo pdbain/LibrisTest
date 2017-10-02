@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -100,26 +101,30 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			HashMap<Integer, int[][]> entries= new HashMap<Integer, int[][]>(numEntries);
 			AffiliateListEntryFactory eFactory = AffiliateListEntry.getFactory();
 			VariableSizeEntryHashBucket<AffiliateListEntry> buck = new VariableSizeEntryHashBucket<>(null, 0, null, null);
+// TODO remove duplicate from expected
 			for (int key = 1; key < numEntries; key++ ) {
 				int childrenAndAffiliates[][] = new int[2][];
 				AffiliateListEntry newEntry = eFactory.makeEntry(key);
 				double ng = r.nextGaussian();
 				int numChildren = Math.abs((int) (ng * affiliateScale));
-				childrenAndAffiliates[0] = new int[numChildren];
+				HashSet<Integer> affiliateList = new HashSet<>(numChildren);
 				for (int i = 0; i < numChildren; ++i) {
 					int newChild = r.nextInt(numEntries) + 1;
-					childrenAndAffiliates[0][i] = newChild;
+					affiliateList.add(newChild);
 					newEntry = new AffiliateListEntry(newEntry, newChild, true);
 				}
+				childrenAndAffiliates[0] = Utilities.toIntList(affiliateList);
 				Arrays.sort(childrenAndAffiliates[0]);
+				
 				ng = r.nextGaussian();
 				int numAffiliates = Math.abs((int) (ng * affiliateScale));
-				childrenAndAffiliates[1] = new int[numAffiliates];
+				affiliateList = new HashSet<>(numAffiliates);				
 				for (int i = 0; i < numAffiliates; ++i) {
 					int newAffiliate = r.nextInt(numEntries) + 1;
-					childrenAndAffiliates[1][i] = newAffiliate;
+					affiliateList.add(newAffiliate);
 					newEntry = new AffiliateListEntry(newEntry, newAffiliate, false);
 				}
+				childrenAndAffiliates[1] = Utilities.toIntList(affiliateList);
 				Arrays.sort(childrenAndAffiliates[1]);
 				entries.put(key, childrenAndAffiliates);
 				buck.addEntry(newEntry);
@@ -127,8 +132,9 @@ public class VariableSizeEntryHashBucketTest extends TestCase{
 			for (int key = 1; key < numEntries; key++ ) {
 				AffiliateListEntry e = buck.getEntry(key);
 				int[][] expectedData = entries.get(key);
-				Utilities.compareIntLists("children", expectedData[0], e.getChildren());
-				Utilities.compareIntLists("affiliates", expectedData[1], e.getAffiliates());
+				assertTrue("Lists do not match", Utilities.compareIntLists("children", expectedData[0], e.getChildren()));
+				assertTrue("Lists do not match", 
+						Utilities.compareIntLists("affiliates", expectedData[1], e.getAffiliates()));
 			}
 
 		} catch (DatabaseException e) {

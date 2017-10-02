@@ -1,0 +1,42 @@
+<libris branch="0" databasename="testDatabase1" date="2011-06-03 00:00:00 UTC" schemalocation="" schemaname="testDatabase1" schemaversion="testDatabase1">
+	<records>
+<record id="1" name="Name_1">
+	<field id="ID_auth" value="new value 1"/>
+	<field id="ID_publisher" value="NS_ieee"/>
+</record>
+
+<record id="2" name="Name_2">
+	<member group="GRP_pubinfo" parent="1">
+	</member>
+	<field id="ID_auth" value="new value 2"/>
+	<field id="ID_journal" value="JR_ieee_micro"/>
+</record>
+
+<record id="3" name="Name_3">
+	<member group="GRP_pubinfo" parent="1">
+	</member>
+	<field id="ID_auth" value="new value 3"/>
+	<field id="ID_journal" value="JR_ieee_computer"/>
+</record>
+
+<record id="4" name="Name_4">
+	<member group="GRP_pubinfo" parent="3">
+	</member>
+	<field id="ID_auth" value="new value 4"/>
+	<field id="ID_volume" value="1"/>
+</record>
+
+<record id="5" name="Name_5">
+	<field id="ID_auth" value="new value 5"/>
+	<field id="ID_publisher" value="NS_acm"/>
+</record>
+
+<record id="6" name="Name_6">
+	<member group="GRP_pubinfo" parent="5">
+	</member>
+	<field id="ID_auth" value="new value 6"/>
+	<field id="ID_journal" value="JR_c_acm"/>
+</record>
+
+	</records>
+</libris>

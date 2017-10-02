@@ -283,10 +283,10 @@ public class GuiManualTests extends TestCase {
 		File testDir = Utilities.getTestDataDirectory();
 		File inputFile = new File(testDir, Utilities.LAYOUT_DECLARATIONS_XML_FILE);
 		try {
-			Layouts myLayouts = new Layouts(null);
+			Layouts myLayouts = new Layouts(mySchema);
 			ElementManager mgr = Utilities.makeElementManagerFromFile(inputFile, "layouts");
 			loadSchema();
-			myLayouts.fromXml(mySchema, mgr);
+			myLayouts.fromXml(mgr);
 			return myLayouts;
 		} catch (DatabaseException e) {} catch (XmlException e) {
 			fail(inputFile.getAbsolutePath()+" InputDataException "+e.getMessage());

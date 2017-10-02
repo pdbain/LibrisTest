@@ -9,6 +9,7 @@ import javax.xml.stream.XMLStreamException;
 
 import junit.framework.TestCase;
 
+import org.lasalledebain.MockSchema;
 import org.lasalledebain.Utilities;
 import org.lasalledebain.libris.RecordId;
 import org.lasalledebain.libris.exception.LibrisException;
@@ -35,7 +36,7 @@ public class MemberTest extends TestCase implements LibrisXMLConstants {
 	@Override
 	protected void setUp() throws Exception {
 		defs = new GroupDefs();
-		defs.addGroup(new GroupDef(TEST_GROUP1, TEST_TITLE, 0));
+		defs.addGroup(new GroupDef(new MockSchema(), TEST_GROUP1, TEST_TITLE, 0));
 	}
 	public void testFromToXml() {
 		try {

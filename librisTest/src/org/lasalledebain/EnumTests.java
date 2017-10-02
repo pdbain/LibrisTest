@@ -128,7 +128,7 @@ public class EnumTests extends TestCase {
 		ByteArrayInputStream xmlInput = new ByteArrayInputStream(testData.getBytes());
 		EnumFieldChoices ef = new EnumFieldChoices("mySet");
 		try {
-			ef.fromXml(Utilities.makeElementManager(xmlInput, null, LibrisXMLConstants.XML_ENUMSET_TAG));
+			ef.fromXml(Utilities.makeElementManager(xmlInput, null, EnumFieldChoices.getXmlTag()));
 			assertEquals("xc1", ef.getChoiceId(0));
 			assertEquals("v2", ef.getChoiceValue(1));
 			assertEquals("v3", ef.getChoiceValue(2));

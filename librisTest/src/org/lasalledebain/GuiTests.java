@@ -5,16 +5,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import junit.framework.TestCase;
-
 import org.lasalledebain.libris.Libris;
 import org.lasalledebain.libris.LibrisDatabase;
-import org.lasalledebain.libris.RecordId;
 import org.lasalledebain.libris.Schema;
 import org.lasalledebain.libris.ui.Layouts;
 import org.lasalledebain.libris.xmlUtils.ElementManager;
 import org.lasalledebain.libris.xmlUtils.ElementReader;
 import org.lasalledebain.libris.xmlUtils.LibrisXmlFactory;
+
+import junit.framework.TestCase;
 
 
 public class GuiTests extends TestCase {
@@ -26,8 +25,8 @@ public class GuiTests extends TestCase {
 			ElementManager mgr = Utilities.makeElementManagerFromFile(inputFile, "layouts");
 
 			loadSchema();
-			Layouts myLayouts = new Layouts(null);
-			myLayouts.fromXml(mySchema, mgr);
+			Layouts myLayouts = new Layouts(mySchema);
+			myLayouts.fromXml(mgr);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("unexpected exception: "+e);

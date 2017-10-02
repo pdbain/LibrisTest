@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,7 +88,7 @@ public class Utilities extends TestCase {
 
 	public static FieldTemplate createTemplate(String id,
 			Field.FieldType ft) {
-		return new FieldTemplate(id, "", ft);
+		return new FieldTemplate(new MockSchema(), id, "", ft);
 	}
 
 	public static File getTestDataDirectory() {
@@ -127,8 +128,8 @@ public class Utilities extends TestCase {
 	throws FileNotFoundException, FactoryConfigurationError,
 	XMLStreamException, LibrisException, DatabaseException {
 		ElementManager mgr = makeElementManagerFromFile(inputFile, "layouts");
-		Layouts myLayouts = new Layouts(null);
-		myLayouts.fromXml(schem, mgr);
+		Layouts myLayouts = new Layouts(schem);
+		myLayouts.fromXml(mgr);
 		return myLayouts;
 	}
 
@@ -381,6 +382,15 @@ public class Utilities extends TestCase {
 		return db;
 	}
 
+	public static int[] toIntList(Collection<Integer> list) {
+		int[] result = new int[list.size()];
+		int index = 0;
+		for (Integer i: list) {
+			result[index++] = i;
+		}
+		return result;
+	}
+	
 	public static boolean compareIntLists(String dType, int[] expectedData, int[] actualData) {
 		int sed[] = Arrays.copyOf(expectedData, expectedData.length);
 		int sad[] = Arrays.copyOf(actualData, actualData.length);
