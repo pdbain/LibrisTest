@@ -36,6 +36,7 @@ public class JournalTest extends TestCase implements LibrisConstants, LibrisXMLC
 	
 	@Override
 	protected void setUp() throws Exception {
+		Utilities.deleteWorkingDirectory();
 		workDir = Utilities.getTempTestDirectory();
 		if (null == workDir) {
 			fail("could not create working directory ");
@@ -81,6 +82,7 @@ public class JournalTest extends TestCase implements LibrisConstants, LibrisXMLC
 	@Override
 	protected void tearDown() throws Exception {
 		journalFileMgr.close();
+		Utilities.deleteWorkingDirectory();
 	}
 	public void testIterator() {
 		try {

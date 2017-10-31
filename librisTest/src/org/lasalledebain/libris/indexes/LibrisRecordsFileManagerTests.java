@@ -395,9 +395,6 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 			try {
 				ar = recFile.getRecord(rid);
 				if (null == ar) {
-					Exception lastException = LibrisDatabase.getLastException();
-					System.err.println(lastException.getMessage());
-					lastException.printStackTrace();
 					fail("could not read record");
 				}
 				if (verbose) {
@@ -624,13 +621,11 @@ public class LibrisRecordsFileManagerTests extends TestCase {
 		try {
 			actualRecord = recFile.getRecord(rid);
 			if (null == actualRecord) {
-				LibrisException lastException = (LibrisException) LibrisDatabase.getLastException();
-				System.err.println(lastException.getMessage());
-				lastException.printStackTrace();
 				fail("could not read record");
 			}
 			assertEquals("record read != original", expectedRecord, actualRecord);
 		} catch (Exception e) {
+			e.printStackTrace();
 			fail("Unexpected exception");
 		}
 	}

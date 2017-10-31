@@ -1,0 +1,30 @@
+<libris databasename="testDatabase1" date="2011-06-02 20:00:00 EDT" schemalocation="" schemaname="testDatabase1" schemaversion="testDatabase1">
+	<metadata>
+		<schema>
+			<groupdefs>
+			</groupdefs>
+			<fielddefs>
+				<fielddef id="ID_auth" title="author"/>
+			</fielddefs>
+			<indexdefs>
+			</indexdefs>
+		</schema>
+		<layouts>
+		</layouts>
+	</metadata>
+	<records lastid="4">
+		<record id="1">
+			<field id="ID_auth" value="record1"/>
+		</record>
+		<record id="2">
+			<field id="ID_auth" value="record2"/>
+		</record>
+		<record id="3">
+			<field id="ID_auth" value="record3"/>
+			<field id="ID_auth" value="extra data"/>
+		</record>
+		<record id="4">
+			<field id="ID_auth" value="record4"/>
+		</record>
+	</records>
+</libris>

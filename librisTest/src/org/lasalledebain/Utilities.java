@@ -267,8 +267,12 @@ public class Utilities extends TestCase {
 	}
 
 	public static void deleteTestDatabaseFiles() {
-
 		deleteTestDatabaseFiles(TEST_DB1_XML_FILE);
+	}
+	
+	public static void deleteWorkingDirectory() {
+		File workDir = getTempTestDirectory();
+		deleteRecursively(workDir);
 	}
 
 	public static void deleteTestDatabaseFiles(final String dbName) {
@@ -285,9 +289,7 @@ public class Utilities extends TestCase {
 	}
 	public static File getTempTestDirectory() {
 		File tempTestDirectory = new File(System.getProperty("java.io.tmpdir"), "libristest");
-		if (tempTestDirectory.exists() && !deleteRecursively(tempTestDirectory)) {
-			return null;
-		} else if (!tempTestDirectory.mkdir()) {
+		if (!tempTestDirectory.exists() && !tempTestDirectory.mkdir()) {
 			return null;
 		} else {
 			return tempTestDirectory;

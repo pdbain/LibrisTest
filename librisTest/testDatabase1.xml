@@ -4,20 +4,20 @@
 	<schema>
 		<groupdefs />
 		<fielddefs>
-			<enumset id="ENUM_enum1">
-				<enumchoice id="NS_e1" value="Enumv1" />
-				<enumchoice id="NS_e2" value="Enumv2" />
-				<enumchoice id="NS_e3" value="Enumv3" />
-				<enumchoice id="NS_e4" value="Enumv4" />
-				<enumchoice id="NS_e5" value="Enumv5" />
-				<enumchoice id="NS_e6" value="Enumv6" />
+			<enumset id="ENUM_publishers">
+				<enumchoice id="NS_acm" value="ACM" />
+				<enumchoice id="NS_ieee" value="IEEE" />
+				<enumchoice id="NS_ibm" value="IBM" />
+				<enumchoice id="NS_bantam" value="Bantam Books" />
+				<enumchoice id="NS_penguin" value="Penguin Books" />
+				<enumchoice id="NS_addison_wesley" value="Addison-Wesley" />
 				<enumchoice id="NS_OTHER" value="other" />
 			</enumset>
 			<fielddef id="ID_auth" title="author"/>
 			<fielddef id="ID_authors" datatype="string" />
 			<fielddef id="ID_title" datatype="string" />
 			<fielddef id="ID_pages" datatype="valuepair" />
-			<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_enum1" valueseparator=":" default="NS_e6" />
+			<fielddef id="ID_publisher" datatype="enum" enumset="ENUM_publishers" valueseparator=":" />
 			<fielddef id="ID_keywords" datatype="string" />
 			<fielddef id="ID_abstract" datatype="string" />
 			<fielddef id="ID_hardcopy" datatype="boolean" />
@@ -42,18 +42,7 @@
 			<layoutfield title="Keywords" id="ID_keywords" control="textbox" return="true" />
 			<layoutfield title="Abstract" id="ID_abstract" control="textbox" return="true" />
 		</layout>
-		<layout id="LO_paragraphDisplay" title="Paragraph layout" type="paragraph" height="400"
-			width="700">
-			<layoutusage usedby="paragraph"/>
-			<layoutfield title="Author" id="ID_auth" control="textfield" />
-			<layoutfield title="Title" id="ID_title" control="textfield" return="true"/>
-			<layoutfield title="Pages" id="ID_pages" control="rangefield" return="true"/>
-			<layoutfield title="Publisher" id="ID_publisher" control="enumfield" />
-			<layoutfield title="Hardcopy" id="ID_hardcopy" control="checkbox" />
-			<layoutfield title="Keywords" id="ID_keywords" control="textbox" return="true" />
-			<layoutfield title="Abstract" id="ID_abstract" control="textbox" return="true" />
-		</layout>
-		<layout id="LO_browserDisplay" title="Summary" type="list" height="400"
+				<layout id="LO_browserDisplay" title="Summary" type="list" height="400"
 			width="700">
 			<layoutusage usedby="summarydisplay"/>
 			<layoutfield title="Author" id="ID_auth" control="textfield" />
@@ -63,35 +52,36 @@
 	</metadata>
 	<records lastid="4">
 			<record id="1">
-			<field id="ID_auth" value="Rec1Fld1Val1" />
-			<field id="ID_title" value="Rec1Fld2Val1" />
-			<field id="ID_pages" value="1" extravalue="2"/>
-			<field id="ID_publisher" value="NS_e1" />
-			<field id="ID_keywords" value="k1 k2 k3" />
+			<field id="ID_auth" value="John le Carre" />
+			<field id="ID_title" value="Smiley's People" />
+			<field id="ID_pages" value="388" />
+			<field id="ID_publisher" value="NS_bantam" />
+			<field id="ID_keywords" value="circus Smiley Haydon" />
 			<field id="ID_hardcopy" value="true" />
 		</record>
 		<record id="2">
-			<field id="ID_auth" value="Rec2Fld1Val1" />
-			<field id="ID_title" value="testMissingField" />
+			<field id="ID_auth" value="Homer" />
+			<field id="ID_title" value="The Odyssey" />
 			<field id="ID_pages" value="365" />
+			<field id="ID_publisher" value="NS_penguin" />
 			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
 			<field id="ID_hardcopy" value="true" />
 		</record>
 		<record id="3">
-			<field id="ID_auth" value="Rec3Fld1Val1" />
+			<field id="ID_auth" value="Louise Creighton" />
 			<field id="ID_title" value="A First History of France" />
 			<field id="ID_pages" value="301" />
-			<field id="ID_publisher" value="" extravalue="other" />
+			<field id="ID_publisher" value="" extravalue="someone else" />
 			<field id="ID_keywords" value="Ulysses Odysseus Trojan war" />
 			<field id="ID_hardcopy" value="true" />
 		</record>
 		<record id="4">
-			<field id="ID_auth" value="Rec4Fld1Val1" />
-			<field id="ID_auth" value="Rec4Fld1Val2" />
-			<field id="ID_title" value="Rec4Fld2Val1" />
-			<field id="ID_pages" value="Rec4Fld3Val1.1" extravalue="Rec4Fld3Val1.2" />
-			<field id="ID_publisher" value="" extravalue="NS_e6" />
-			<field id="ID_keywords" value="k13 k14 k15" />
+			<field id="ID_auth" value="Tim Lindholm" />
+			<field id="ID_auth" value="Frank Yellin" />
+			<field id="ID_title" value="The Java Virtual Machine Specification, Second Edition" />
+			<field id="ID_pages" value="473" />
+			<field id="ID_publisher" value="" extravalue="NS_addison_wesley" />
+			<field id="ID_keywords" value="Java VM bytecode classloading" />
 			<field id="ID_hardcopy" value="true" />
 		</record>
 	</records>

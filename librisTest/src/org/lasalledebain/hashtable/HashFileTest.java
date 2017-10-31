@@ -437,6 +437,7 @@ public class HashFileTest extends TestCase {
 		if (null != testFileObject) {
 			testFileObject.delete();
 		}
+		Utilities.deleteWorkingDirectory();
 	}
 
 }

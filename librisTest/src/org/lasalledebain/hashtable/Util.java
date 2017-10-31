@@ -101,7 +101,7 @@ public class Util extends TestCase {
 	 * 
 	 */
 	static File makeTestFileObject(String fileName) {
-		File workingDirectory = new File(System.getProperty("java.io.tmpdir"), fileName);
+		File workingDirectory = new File(Utilities.getTempTestDirectory(), fileName);
 		Utilities.deleteRecursively(workingDirectory);
 		workingDirectory.mkdirs();
 		File tf = new File(workingDirectory, "testIndexFile");

@@ -47,7 +47,7 @@ public class RecordEditTests extends TestCase {
 			gui.displaySelectedRecord();
 			pause("opened record");
 			out.println("selected "+rid);
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			gui.close(false, false);
 			pause("re-open record");
 			gui.displaySelectedRecord();
@@ -237,7 +237,7 @@ public class RecordEditTests extends TestCase {
 			pause("opened record");
 			out.println("selected "+rid);
 			assertEquals("Opened wrong record", 2, rid);
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			pause("check publisher field");
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
@@ -246,7 +246,7 @@ public class RecordEditTests extends TestCase {
 			int numValues = pubUiField.getNumValues();
 			assertEquals("Wrong number of values for editable "+ID_PUB, 0, numValues);
 			String val = pubUiField.getRecordField().getValuesAsString();
-			gui.setEditable(false);
+			gui.setRecordWindowEditable(false);
 			numValues = pubUiField.getNumValues();
 			assertEquals("Wrong number of values for read-only"+ID_PUB, 0, numValues);
 			val = pubUiField.getRecordField().getValuesAsString();
@@ -268,7 +268,7 @@ public class RecordEditTests extends TestCase {
 			int rid = resultsWindow.getSelectedRecordId();
 			out.println("selected "+rid);
 			gui.duplicateRecord();
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
 			MultipleValueUiField authUiField = (MultipleValueUiField) recWindow.getField(ID_AUTH);
@@ -322,7 +322,7 @@ public class RecordEditTests extends TestCase {
 			int rid = resultsWindow.getSelectedRecordId();
 			out.println("selected "+rid);
 			resultsWindow.displaySelectedRecord();
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
 			MultipleValueUiField pubField = (MultipleValueUiField) recWindow.getField(ID_PUB);
@@ -339,7 +339,7 @@ public class RecordEditTests extends TestCase {
 
 			resultsWindow.setSelectedRecordIndex(lastRecord);
 			resultsWindow.displaySelectedRecord();
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			pause();
 			dispPanel = gui.getDisplayPanel();
 			recWindow = dispPanel.getCurrentRecordWindow();			
@@ -368,7 +368,7 @@ public class RecordEditTests extends TestCase {
 			BrowserWindow resultsWindow = gui.getResultsWindow();
 			resultsWindow.setSelectedRecordIndex(3);
 			gui.displaySelectedRecord();
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
 			int originalId = resultsWindow.getSelectedRecordId();
@@ -376,7 +376,7 @@ public class RecordEditTests extends TestCase {
 			out.println("selected "+originalId);
 			gui.duplicateRecord();
 			gui.enterRecord();
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			recWindow = dispPanel.getCurrentRecordWindow();
 			Record newRec = recWindow.getRecord();
 			assertEquals("Duplicate record != original record", originalRecord, newRec);
@@ -417,7 +417,7 @@ public class RecordEditTests extends TestCase {
 			int rid = resultsWindow.getSelectedRecordId();
 			gui.displaySelectedRecord();
 			testLogger.log(Level.INFO, "selected "+rid);
-			gui.setEditable(true);
+			gui.setRecordWindowEditable(true);
 			RecordDisplayPanel dispPanel = gui.getDisplayPanel();
 			RecordWindow recWindow = dispPanel.getCurrentRecordWindow();
 			Record currentRec = recWindow.getRecord();

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<libris date="2011-06-03 00:00:00 UTC" schemaname="testDatabase1" databasename="testDatabase1" schemaversion="0.0">
+<metadata>
+	<schema>
+		<groupdefs />
+		<fielddefs>
+			<fielddef id="ID_f1" datatype="string" />
+			<fielddef id="ID_f2" datatype="string" />
+			<fielddef id="ID_f3" datatype="string" />
+			<fielddef id="ID_f4" datatype="string" />
+		</fielddefs>
+		<indexdefs>
+		</indexdefs>
+	</schema>
+	<layouts>
+	</layouts>
+	</metadata>
+	<records lastid="0">
+	</records>
+</libris>

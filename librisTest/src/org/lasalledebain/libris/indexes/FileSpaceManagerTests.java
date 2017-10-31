@@ -128,10 +128,14 @@ public class FileSpaceManagerTests extends TestCase {
 			Iterator<RecordHeader> iter = mgr.iterator();
 			while (iter.hasNext()) {
 				RecordHeader h = iter.next();
+				short headerId = h.getInput().readShort();
+				testLogger.log(Level.INFO, "Keep "+headerId);
 				if (iter.hasNext()) {
 					h = iter.next();
 				}
-				Integer id = new Integer(h.getInput().readShort());
+				headerId = h.getInput().readShort();
+				Integer id = new Integer(headerId);
+				testLogger.log(Level.INFO, "Remove "+headerId);
 				removedEntries.add(id);
 				iter.remove();
 			}
@@ -156,8 +160,7 @@ public class FileSpaceManagerTests extends TestCase {
 		for (RecordHeader r: mgr) {
 			int id = checkEntry(entrySize, entrySize, dataGen, r);
 			final Integer integerId = new Integer(id);
-			assertTrue("Duplicate or spurious entry "+id, addedEntries.contains(integerId));
-			addedEntries.remove(integerId);
+			assertTrue("Missing entry "+id, addedEntries.contains(integerId));
 		}
 	}
 

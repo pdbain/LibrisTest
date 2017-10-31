@@ -195,7 +195,7 @@ public class RecordListTests extends TestCase {
 			testDb.open();
 			checkRecordOrder(testDb, expectedData);
 			
-			testDb.exportDatabaseXml(new FileOutputStream(testDatabaseFileCopy), true, true);
+			testDb.exportDatabaseXml(new FileOutputStream(testDatabaseFileCopy), true, true, false);
 			testDb.close();
 			testDb = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
 			checkRecordOrder(testDb, expectedData);

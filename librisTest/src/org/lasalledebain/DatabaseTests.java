@@ -1,34 +1,35 @@
 package org.lasalledebain;
 
 import static org.lasalledebain.Utilities.DATABASE_WITH_GROUPS_XML;
+import static org.lasalledebain.Utilities.checkRecords;
+import static org.lasalledebain.Utilities.testLogger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
+import org.lasalledebain.libris.DatabaseInstance;
 import org.lasalledebain.libris.Field;
 import org.lasalledebain.libris.Libris;
+import org.lasalledebain.libris.LibrisConstants;
 import org.lasalledebain.libris.LibrisDatabase;
 import org.lasalledebain.libris.LibrisMetadata;
 import org.lasalledebain.libris.Record;
 import org.lasalledebain.libris.RecordTemplate;
+import org.lasalledebain.libris.exception.InputException;
 import org.lasalledebain.libris.exception.LibrisException;
 import org.lasalledebain.libris.ui.LibrisUi;
 import org.lasalledebain.libris.xmlUtils.ElementManager;
-import static org.lasalledebain.Utilities.checkRecords;
-import static org.lasalledebain.Utilities.testLogger;
+
+import junit.framework.TestCase;
 
 public class DatabaseTests extends TestCase {
 
 	private static final String ID_AUTH = "ID_auth";
 	private static final String ID_publisher = "ID_publisher";
 	private final static String[] authors = {"", "John le Carre", "Homer", "Louise Creighton"};
-	private File testDatabaseFileCopy;
 	private LibrisDatabase db;
 	private LibrisDatabase db2;
 	// TODO override auxiliary directory
@@ -75,17 +76,6 @@ public class DatabaseTests extends TestCase {
 		}
 	}
 
-	private LibrisDatabase buildTestDatabase(File testDatabaseFileCopy) throws IOException {			
-		db = null;
-		try {
-			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
-		} catch (Throwable e) {
-			e.printStackTrace();
-			fail("Cannot open database");
-		}
-		return db;
-	}
-
 	public void testEnterRecord() {
 
 		final int NUM_RECORDS = 3;
@@ -115,7 +105,7 @@ public class DatabaseTests extends TestCase {
 
 		final int NUM_RECORDS = 6;
 		try {
-			File testDatabaseFileCopy = Utilities.getTestDatabase(Utilities.DATABASE_WITH_GROUPS_AND_RECORDS_XML);
+			File testDatabaseFileCopy = Utilities.copyTestDatabaseFile(Utilities.DATABASE_WITH_GROUPS_AND_RECORDS_XML);
 			db = buildTestDatabase(testDatabaseFileCopy);
 
 			for (int i = 1; i <= NUM_RECORDS; ++i) {
@@ -154,7 +144,7 @@ public class DatabaseTests extends TestCase {
 
 	public void testOpenIndexAndImmediatelyCloseDatabase() {
 		try {
-			db = buildTestDatabase(testDatabaseFileCopy);
+			db = buildTestDatabase(Utilities.copyTestDatabaseFile());
 			db.close();
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -192,8 +182,7 @@ public class DatabaseTests extends TestCase {
 
 	public void testEnumOutOfRange() {
 		try {
-			db = buildTestDatabase(testDatabaseFileCopy);
-			File dbFile = db.getDatabaseFile();
+			db = buildTestDatabase(Utilities.copyTestDatabaseFile());
 			LibrisUi testUi = db.getUi();
 			String expected = null;
 			{
@@ -219,13 +208,13 @@ public class DatabaseTests extends TestCase {
 	}
 	public void testXmlExportAll() {
 		try {
-			db = buildTestDatabase(testDatabaseFileCopy);
+			db = buildTestDatabase(Utilities.copyTestDatabaseFile());
 			File workdir = Utilities.getTempTestDirectory();
 			File copyDbXml = new File (workdir, "database_copy.xml");
 			copyDbXml.deleteOnExit();
 			FileOutputStream copyStream = new FileOutputStream(copyDbXml);
 			testLogger.log(Level.INFO,getName()+": copy database to"+copyDbXml);
-			db.exportDatabaseXml(copyStream, true, true);
+			db.exportDatabaseXml(copyStream, true, true, false);
 			copyStream.close();
 
 			db2 = Libris.buildAndOpenDatabase(copyDbXml);
@@ -247,12 +236,13 @@ public class DatabaseTests extends TestCase {
 			copyDbXml.deleteOnExit();
 			FileOutputStream copyStream = new FileOutputStream(copyDbXml);
 			testLogger.log(Level.INFO,getName()+": copy database to"+copyDbXml);
-			db.exportDatabaseXml(copyStream, true, true);
+			db.exportDatabaseXml(copyStream, true, true, false);
 			copyStream.close();
 
 			LibrisDatabase dbCopy = Libris.buildAndOpenDatabase(copyDbXml);
 			assertNotNull("Error rebuilding database copy", dbCopy);
 			assertTrue("database copy does not match original", dbCopy.equals(db));
+			db.close();
 			dbCopy.close();
 			Utilities.deleteRecursively(testDatabaseFileCopy);
 			Utilities.deleteRecursively(copyDbXml);
@@ -266,7 +256,7 @@ public class DatabaseTests extends TestCase {
 		final int numRecs = 1024;
 		String dbFile = DATABASE_WITH_GROUPS_XML;
 		try {
-			testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
+			File testDatabaseFileCopy = Utilities.copyTestDatabaseFile(dbFile);
 			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
 			testLogger.log(Level.INFO, "database rebuilt");
 			int lastId = db.getLastRecordId();
@@ -283,22 +273,93 @@ public class DatabaseTests extends TestCase {
 		}
 	}
 
+	public void testFork() {
+		try {
+			File workdir = Utilities.getTempTestDirectory();
+			File dbInstance = new File(workdir, "database_instance.xml");
+			{
+				db = buildTestDatabase(Utilities.copyTestDatabaseFile());
+				File copyDbXml = new File (workdir, "database_copy.xml");
+				testLogger.log(Level.INFO,getName()+": copy database to "+copyDbXml);
+				copyDbXml.deleteOnExit();
+				dbInstance.deleteOnExit();
+				FileOutputStream instanceStream = new FileOutputStream(dbInstance);
+				testLogger.log(Level.INFO,getName()+": copy database to "+dbInstance);
+				db.exportDatabaseXml(instanceStream, true, true, true);
+				instanceStream.close();
+			}
+			db2 = Libris.buildAndOpenDatabase(dbInstance);
+			assertNotNull("Error rebuilding database copy", db2);
+			assertTrue("database copy does not match original", db2.equals(db));
+			
+			db.close();
+			DatabaseInstance inst = db2.getMetadata().getInstanceInfo();
+			assertNotNull("Database instance information missing", inst);
+			int lastId = db2.getLastRecordId();
+			final int numRecs = 10;
+			for (int i = lastId+1; i <= numRecs; ++i) {
+				Record rec = db2.newRecord();
+				int recNum = db2.put(rec);
+				assertEquals("wrong ID for new record",  i, recNum);
+			}
+			db2.save();
+			checkRecords(db2, lastId);
+
+			for (int i = 1; i <= numRecs; ++i) {
+				try {
+					Record r = db2.getRecord(i);
+					assertNotNull("Cannot find record "+i, r);
+					assertEquals("Wrong record ID",  i, r.getRecordId());
+					boolean readOnly = db2.isRecordReadOnly(i);
+					assertEquals("read-only status of record "+i+" incorrect", i <= lastId, readOnly);
+					r.addFieldValue(ID_AUTH, "new value "+i);
+					int resultId = db2.put(r);
+					if (i <= lastId) {
+						assertEquals("record from root database not read-only", LibrisConstants.NULL_RECORD_ID, resultId);
+					} else {
+						assertEquals("record from fork database wrong ID", i, resultId);
+					}
+				} catch (InputException e) {
+					e.printStackTrace();
+					fail("unexpected exception "+e.getMessage());
+				}
+			}
+		
+			db.close();
+			db2.close();
+			dbInstance.delete();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			fail("unexpected exception");
+		}
+	}
+
 	@Override
 	protected void setUp() throws Exception {
-		testDatabaseFileCopy = Utilities.copyTestDatabaseFile();
+		testLogger.log(Level.INFO,"running "+getName());
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		if (null != db) {
 			db.close(true);
+			db = null;
 		}
 		if (null != db2) {
 			db2.close(true);
+			db2 = null;
 		}
-		Utilities.deleteTestDatabaseFiles();
-		if (null != testDatabaseFileCopy) {
-			testDatabaseFileCopy.delete();
+		Utilities.deleteWorkingDirectory();
+	}
+
+	private LibrisDatabase buildTestDatabase(File testDatabaseFileCopy) throws IOException {			
+		db = null;
+		try {
+			db = Libris.buildAndOpenDatabase(testDatabaseFileCopy);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			fail("Cannot open database");
 		}
+		return db;
 	}
 }
