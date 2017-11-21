@@ -288,6 +288,7 @@ public class DatabaseTests extends TestCase {
 				db.exportDatabaseXml(instanceStream, true, true, true);
 				instanceStream.close();
 			}
+			int lastId = db.getLastRecordId();
 			db2 = Libris.buildAndOpenDatabase(dbInstance);
 			assertNotNull("Error rebuilding database copy", db2);
 			assertTrue("database copy does not match original", db2.equals(db));
@@ -295,7 +296,7 @@ public class DatabaseTests extends TestCase {
 			db.close();
 			DatabaseInstance inst = db2.getMetadata().getInstanceInfo();
 			assertNotNull("Database instance information missing", inst);
-			int lastId = db2.getLastRecordId();
+			assertEquals("Wrong base ID", lastId, inst.getRecordIdBase());
 			final int numRecs = 10;
 			for (int i = lastId+1; i <= numRecs; ++i) {
 				Record rec = db2.newRecord();
@@ -324,6 +325,49 @@ public class DatabaseTests extends TestCase {
 					fail("unexpected exception "+e.getMessage());
 				}
 			}
+		
+			db.close();
+			db2.close();
+			dbInstance.delete();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			fail("unexpected exception");
+		}
+	}
+
+	public void testIncrement() {
+		try {
+			File workdir = Utilities.getTempTestDirectory();
+			File dbInstance = new File(workdir, "database_instance.xml");
+			File dbIncrement = new File(workdir, "database_increment.xml");
+			{
+				db = buildTestDatabase(Utilities.copyTestDatabaseFile());
+				File copyDbXml = new File (workdir, "database_copy.xml");
+				testLogger.log(Level.INFO,getName()+": copy database to "+copyDbXml);
+				copyDbXml.deleteOnExit();
+				dbInstance.deleteOnExit();
+				FileOutputStream instanceStream = new FileOutputStream(dbInstance);
+				testLogger.log(Level.INFO,getName()+": copy database to "+dbInstance);
+				db.exportDatabaseXml(instanceStream, true, true, true);
+				instanceStream.close();
+			}
+			int lastId = db.getLastRecordId();
+			db2 = Libris.buildAndOpenDatabase(dbInstance);
+			assertNotNull("Error rebuilding database copy", db2);
+			assertTrue("database copy does not match original", db2.equals(db));
+			
+			db.close();
+			DatabaseInstance inst = db2.getMetadata().getInstanceInfo();
+			assertNotNull("Database instance information missing", inst);
+			assertEquals("Wrong base ID", lastId, inst.getRecordIdBase());
+			final int numRecs = 10;
+			for (int i = lastId+1; i <= numRecs; ++i) {
+				Record rec = db2.newRecord();
+				int recNum = db2.put(rec);
+				assertEquals("wrong ID for new record",  i, recNum);
+			}
+			db2.save();
+			db2.exportIncrement(new FileOutputStream(dbIncrement));
 		
 			db.close();
 			db2.close();
