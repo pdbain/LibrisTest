@@ -91,6 +91,7 @@ public class Utilities extends TestCase {
 		return new FieldTemplate(new MockSchema(), id, "", ft);
 	}
 
+	@Deprecated
 	public static File getTestDataDirectory() {
 		info(System.getProperty("user.dir"));
 		File testDir = new File(System.getProperty("user.dir"), "data");
